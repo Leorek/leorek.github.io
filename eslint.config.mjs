@@ -28,6 +28,34 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^(_|ignore)',
         },
       ],
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            // Prevent features from importing from other features
+            {
+              target: './src/features/*',
+              from: './src/features',
+              except: ['./$(basename ${target})'],
+            },
+            // Enforce unidirectional flow
+            {
+              target: './src/features',
+              from: './src/app',
+            },
+            {
+              target: [
+                './src/components',
+                './src/hooks',
+                './src/lib',
+                './src/types',
+                './src/utils',
+              ],
+              from: ['./src/features', './src/app'],
+            },
+          ],
+        },
+      ],
     },
   },
 ]

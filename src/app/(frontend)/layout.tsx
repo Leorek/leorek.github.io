@@ -1,23 +1,13 @@
 import React from 'react'
-import { Inter } from 'next/font/google'
 import './styles.css'
+import { RootLayout } from '@/components/layouts/RootLayout'
+import { SITE_CONFIG } from '@/config/site'
 
 export const metadata = {
-  description:
-    "Hi! I'm Juan Alberto, a software engineer who loves building things for the web. Welcome to my personal corner of the internet.",
-  title: 'Juan Alberto | Software Engineer',
+  title: SITE_CONFIG.title,
+  description: SITE_CONFIG.description,
 }
 
-const inter = Inter({ subsets: ['latin'] })
-
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
-
-  return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
-        <main>{children}</main>
-      </body>
-    </html>
-  )
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  return <RootLayout>{children}</RootLayout>
 }

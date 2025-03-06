@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, ListMusic } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { useAudioPlayer, type Song } from '@/hooks/useAudioPlayer'
+import { useAudioPlayer, type Song } from '@/features/music-player/hooks/useAudioPlayer'
 
 // Sample playlist data
 const samplePlaylist: Song[] = [
