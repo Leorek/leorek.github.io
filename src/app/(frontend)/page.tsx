@@ -58,7 +58,7 @@ const quickLinks = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8 flex items-center justify-center">
+    <div className="min-h-screen text-white p-4 md:p-8 flex items-center justify-center">
       <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
         <ProfileCard />
         <MusicPlayer />
