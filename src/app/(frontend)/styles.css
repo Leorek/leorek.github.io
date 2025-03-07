@@ -122,3 +122,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+@property --border-angle {
+  inherits: false;
+  initial-value: 0deg;
+  syntax: '<angle>';
+}        
+
+@theme {
+  --animate-border: border 4s linear infinite;
+
+  @keyframes border {
+    to {
+      --border-angle: 360deg;
+    }
+  }
+}
