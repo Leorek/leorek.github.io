@@ -22,6 +22,10 @@ html {
   scroll-behavior: auto; /* lenis owns scrolling */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* dark root bg + scheme so iOS Safari tints its top/bottom chrome dark
+     (and the safe-area / overscroll backdrop isn't white) */
+  background: #06070b;
+  color-scheme: dark;
 }
 
 body {
