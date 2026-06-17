@@ -1,0 +1,109 @@
+@import 'tailwindcss';
+
+/* ---- design tokens ---------------------------------------------------- */
+@theme {
+  --color-ink: #06070b; /* off-black base (never pure #000) */
+  --color-ink-2: #0b0d14; /* raised surface */
+  --color-ink-3: #12151f; /* card / line wash */
+  --color-line: #1c2030;
+  --color-fog: #8a8f9e; /* muted text */
+  --color-bone: #e8e9ee; /* primary text */
+  --color-ember: #ff7849; /* the single accent */
+  --color-ember-dim: #c9603a;
+
+  --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---- base ------------------------------------------------------------- */
+html {
+  scroll-behavior: auto; /* lenis owns scrolling */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  /* night sky: cool lift toward the upper-right moon side, deep at the top */
+  background:
+    radial-gradient(80% 55% at 72% 18%, rgba(60, 78, 130, 0.22), transparent 60%),
+    linear-gradient(180deg, #04050a 0%, #06070b 55%, #070910 100%);
+  background-attachment: fixed;
+  color: var(--color-bone);
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-ember);
+  color: var(--color-ink);
+}
+
+/* thin, characterful scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 99px;
+}
+
+/* the persistent 3D canvas sits behind everything */
+.scene-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* grain — fixed, pointer-none, never on a scroll container (perf) */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* reveal primitive (driven by GSAP / IntersectionObserver fallback) */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.9s var(--ease-out-expo),
+    transform 0.9s var(--ease-out-expo);
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* eyebrow label */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-ember);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
