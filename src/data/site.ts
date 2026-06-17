@@ -14,15 +14,14 @@ export const profile = {
     'By night I’m in Unreal Engine 5 and Godot, prototyping the kind of interactive worlds I grew up loving. The same instinct drives both: make something that feels good to move through.',
     'Off the screen you’ll find me chasing rollercoasters and theme parks, deep in a videogame, or with celtic and electronic music on far too loud.',
   ],
-  location: 'TODO: City, Country',
+  location: 'Málaga, Spain',
   email: 'japc93k@gmail.com',
   resumeUrl: '', // optional: '/leo-cv.pdf'
 }
 
 export const socials = [
   { label: 'GitHub', handle: 'leorek', href: 'https://github.com/leorek' },
-  // TODO: paste your LinkedIn URL
-  { label: 'LinkedIn', handle: 'in/leo', href: 'https://www.linkedin.com/in/CHANGE-ME' },
+  { label: 'LinkedIn', handle: 'in/juan-palavecino', href: 'https://es.linkedin.com/in/juan-palavecino' },
 ]
 
 // Two halves of the same person — drives the Skills section

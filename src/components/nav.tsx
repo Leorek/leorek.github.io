@@ -3,9 +3,7 @@ import type Lenis from 'lenis'
 import Magnetic from './magnetic'
 
 const LINKS = [
-  { id: 'about', label: 'About' },
   { id: 'skills', label: 'Skills' },
-  { id: 'work', label: 'Work' },
   { id: 'play', label: 'Play' },
   { id: 'contact', label: 'Contact' },
 ]
