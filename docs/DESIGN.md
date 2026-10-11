@@ -25,7 +25,7 @@
 ## 2. Diagnóstico de la web actual
 
 **Lo que funciona**
-- El shader de océano es tuyo: olas de Gerstner, refracción, caústicas y absorción. Demuestra nivel técnico y lo vamos a reutilizar.
+- El shader de océano demuestra nivel técnico (olas de Gerstner, refracción, caústicas y absorción), pero su estética no encaja con el nuevo concepto: se sustituye por un mar toon nuevo (§6).
 - El contenido está centralizado en `src/data/site.ts`, se respeta `prefers-reduced-motion` y hay un fallback si WebGL falla.
 
 **Lo que frena**
@@ -131,6 +131,12 @@ Cada estación es una sección HTML con un panel de texto y una posición de cá
 
 ### Toon
 - **Sombreado**: `MeshToonMaterial` con un *gradient map* de 3 bandas y filtrado *nearest*, para que los saltos de luz sean duros.
+- **Mar**: shader toon propio, casi plano:
+  - degradado de turquesa en la orilla a azul profundo, con un "escalón" donde cae la plataforma;
+  - trazos de espuma sueltos que serpentean;
+  - espuma lamiendo la arena y una ola que entra cada pocos segundos;
+  - el reflejo del sol o la luna como una columna de destellos horizontales, intensa al atardecer y con luna;
+  - línea de horizonte nítida.
 - **Contornos**: técnica de *inverted hull* (`<Outlines>` de drei) en color tinta `#1d1a2b`. Al pasar el ratón por encima, el contorno pasa a ember.
 - **Sombras**: un mapa de sombras para la luz que entra por la ventana, que dibuja el marco en el suelo. Sin sombras en calidad baja.
 - **Formas**: redondeadas, gruesas y con proporciones "chibi". Pocas piezas, bien legibles.
@@ -226,7 +232,8 @@ src/
     scene.tsx             <Canvas>, luces, calidad adaptativa
     camera-rig.tsx        cámara por scroll entre estaciones
     toon.ts               gradient map, materiales y contornos
-    sky.tsx · sea.tsx     cielo por hora y mar toon (Gerstner reutilizado)
+    outside.tsx           cielo por hora, paseo marítimo, La Farola, noria
+    sea.tsx               mar toon (espuma, orilla, reflejo del sol/luna)
     room.tsx              suelo, paredes con hueco de ventana, muebles
     props/                desk · arcade · turntable · coaster · cork-map · lamp
     avatar.tsx            mini-Leo
@@ -269,7 +276,7 @@ Implementado en esta rama y probado con capturas automáticas (escritorio 1440×
 
 **Escena**
 - La habitación toon completa: escritorio, recreativa, tocadiscos, maqueta de coaster y mapa de corcho.
-- El exterior: mar, palmeras, La Farola y la noria.
+- El exterior: mar toon nuevo, palmeras, La Farola y la noria.
 - Mini-Leo con sus estados.
 
 **Recorrido e interacción**
