@@ -1,27 +1,27 @@
 import { useEffect } from 'react'
 import Lenis from 'lenis'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-gsap.registerPlugin(ScrollTrigger)
-
-// Lenis smooth scroll wired into GSAP's ticker + ScrollTrigger.
-// Exposes the instance on window so the 3D scene can read scroll progress.
+// Lenis smooth scroll. Exposed on window so goto() and the scene can use it.
+// Skipped entirely for reduced motion — native scrolling is the right call.
 export function useLenis() {
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    // deep links (#work…): the sections render after the browser tried to
+    // jump, so jump again once layout has settled
+    const id = location.hash.slice(1)
+    const el = id && document.getElementById(id)
 
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true })
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (el) requestAnimationFrame(() => el.scrollIntoView())
+      return
+    }
+
+    const lenis = new Lenis({ autoRaf: true, anchors: true, duration: 1.1 })
     ;(window as unknown as { __lenis?: Lenis }).__lenis = lenis
-
-    lenis.on('scroll', ScrollTrigger.update)
-    const tick = (time: number) => lenis.raf(time * 1000)
-    gsap.ticker.add(tick)
-    gsap.ticker.lagSmoothing(0)
+    if (el) requestAnimationFrame(() => lenis.scrollTo(el, { immediate: true }))
 
     return () => {
-      gsap.ticker.remove(tick)
       lenis.destroy()
+      delete (window as unknown as { __lenis?: Lenis }).__lenis
     }
   }, [])
 }
