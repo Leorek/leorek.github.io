@@ -12,8 +12,8 @@ export default function Magnetic({
   className?: string
 }) {
   const ref = useRef<HTMLSpanElement>(null!)
-  const xTo = useRef<ReturnType<typeof gsap.quickTo>>()
-  const yTo = useRef<ReturnType<typeof gsap.quickTo>>()
+  const xTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null)
+  const yTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null)
 
   const init = () => {
     if (xTo.current) return
