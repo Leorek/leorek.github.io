@@ -1,33 +1,53 @@
+import { lazy, Suspense, useEffect } from 'react'
+import { LangProvider, useLang } from './content/use-lang'
 import { useLenis } from './lib/use-lenis'
-import Scene from './scene/scene'
-import SceneBoundary from './scene/scene-boundary'
+import { bindViewListeners } from './lib/view-state'
 import Nav from './components/nav'
-import Hero from './sections/hero'
-import Skills from './sections/skills'
-import Play from './sections/play'
-import Contact from './sections/contact'
-// About + Projects hidden until real content is ready (see src/data/site.ts)
+import SceneBoundary from './scene/scene-boundary'
+import Stations from './sections/stations'
 
-export default function App() {
+// three.js + the whole studio live in their own chunk: text paints first,
+// the 3D fades in when ready.
+const Scene = lazy(() => import('./scene/scene'))
+
+const hasWebGL = (() => {
+  try {
+    const c = document.createElement('canvas')
+    return !!(c.getContext('webgl2') || c.getContext('webgl'))
+  } catch {
+    return false
+  }
+})()
+
+function Layout() {
+  const { t } = useLang()
   useLenis()
+  useEffect(() => bindViewListeners(), [])
 
   return (
     <>
-      <SceneBoundary>
-        <Scene />
-      </SceneBoundary>
-      <div className="grain" />
+      <a href="#main" className="skip-link">
+        {t.ui.skip}
+      </a>
+      {hasWebGL && (
+        <SceneBoundary>
+          <Suspense fallback={null}>
+            <Scene />
+          </Suspense>
+        </SceneBoundary>
+      )}
       <Nav />
-
-      <main className="relative z-10">
-        <Hero />
-        {/* content sits on a gradient so the 3D reads in the hero, then text stays legible */}
-        <div className="bg-gradient-to-b from-transparent via-ink/90 to-ink">
-          <Skills />
-          <Play />
-          <Contact />
-        </div>
+      <main id="main" className="relative z-10">
+        <Stations />
       </main>
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <LangProvider>
+      <Layout />
+    </LangProvider>
   )
 }

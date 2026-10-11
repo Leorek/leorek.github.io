@@ -1,14 +1,19 @@
 # leorek.github.io
 
-Personal site — a moonlit night-ocean hero (custom three.js Gerstner-wave shader)
-over a single-page portfolio. Built to deploy as static files to GitHub Pages.
+Personal site — **Leo's studio**: a toon-shaded 3D room on the Málaga seafront.
+Scroll for a guided tour (desk → arcade → turntable → coaster model → travel
+board → window), or click any object to jump to it. The room follows real
+Málaga time (day, sunset, night); the desk lamp / sun-moon button
+fast-forwards between day and night. English and Spanish.
+
+Design document (in Spanish): [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Stack
 
-- **Vite + React + TypeScript**
-- **react-three-fiber + drei + three** — the 3D ocean scene
-- **GSAP + Lenis** — smooth scroll, magnetic UI
-- **Tailwind CSS v4**
+- **Vite 8 + React 19 + TypeScript**
+- **react-three-fiber 9 + drei 10 + three r186** — the studio (toon materials,
+  inverted-hull outlines, custom GLSL sky and Gerstner-wave sea)
+- **Lenis** — smooth scroll; **Tailwind CSS v4** — UI
 
 ## Develop
 
@@ -18,10 +23,15 @@ pnpm dev      # http://localhost:5173
 pnpm build    # -> dist/
 ```
 
+Handy URL params: `?t=19.5` pins the clock (e.g. sunset), `#parks` deep-links
+to a station.
+
 ## Edit content
 
-All copy/links/projects live in [`src/data/site.ts`](src/data/site.ts).
-Items marked `TODO` need real data.
+- Copy (EN + ES): [`src/content/i18n.ts`](src/content/i18n.ts)
+- Data (stack, projects, travel pins, links): [`src/data/site.ts`](src/data/site.ts) — items marked `TODO` need real data
+- Camera pose per station: [`src/lib/stations.ts`](src/lib/stations.ts)
+- Time-of-day palettes: [`src/lib/time-of-day.ts`](src/lib/time-of-day.ts)
 
 ## Deploy
 
