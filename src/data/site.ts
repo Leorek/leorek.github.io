@@ -41,16 +41,9 @@ export const projects: Project[] = [
   },
 ]
 
-// Pins on the cork board. Málaga is home base and real.
-// TODO(leo): the rest are PLACEHOLDERS so the prototype map isn't empty —
-// replace them with the places you've actually been.
-export type Place = { name: string; lat: number; lon: number; home?: boolean; placeholder?: boolean }
+// Pins on the cork board. Málaga is home base; yarn runs from it to every
+// other pin. TODO(leo): add the places you've actually been, e.g.
+//   { name: 'Dublin', lat: 53.35, lon: -6.26 },
+export type Place = { name: string; lat: number; lon: number; home?: boolean }
 
-export const places: Place[] = [
-  { name: 'Málaga', lat: 36.72, lon: -4.42, home: true },
-  { name: 'Dublin', lat: 53.35, lon: -6.26, placeholder: true },
-  { name: 'Berlin', lat: 52.52, lon: 13.4, placeholder: true },
-  { name: 'Paris', lat: 48.86, lon: 2.35, placeholder: true },
-  { name: 'Orlando', lat: 28.54, lon: -81.38, placeholder: true },
-  { name: 'Tokyo', lat: 35.68, lon: 139.69, placeholder: true },
-]
+export const places: Place[] = [{ name: 'Málaga', lat: 36.72, lon: -4.42, home: true }]
