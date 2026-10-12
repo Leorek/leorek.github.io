@@ -4,7 +4,7 @@ import { BackSide, Color, Group, ShaderMaterial, Vector3 } from 'three'
 import { palette } from '../lib/time-of-day'
 import { view } from '../lib/view-state'
 import Sea, { SEA_Y } from './sea'
-import { Part } from './toon'
+import { Part } from './paint'
 
 // Everything beyond the window: sky, the Mediterranean (./sea), the seafront,
 // La Farola (Málaga's lighthouse) and a Ferris wheel down the coast.
@@ -37,40 +37,49 @@ const skyFragment = /* glsl */ `
   }
   float fbm(vec2 p) {
     float s = 0.0, a = 0.5;
-    for (int i = 0; i < 4; i++) { s += a * noise(p); p *= 2.03; a *= 0.5; }
+    for (int i = 0; i < 5; i++) { s += a * noise(p); p *= 2.03; a *= 0.5; }
     return s;
   }
 
   void main() {
     vec3 d = normalize(vDir);
     float h = d.y;
-    vec3 col = h > 0.0
-      ? mix(uHorizon, uTop, smoothstep(0.0, 0.55, h))
-      : mix(uHorizon, uGround, smoothstep(0.0, 0.12, -h));
+    vec3 B = normalize(uBodyDir);
+    float cosB = dot(d, B);
 
-    // stars (night): one round dot in a few hashed cells, sizes vary, some twinkle
+    // soft painted gradient + a warm haze hugging the horizon
+    vec3 col = h > 0.0
+      ? mix(uHorizon, uTop, pow(smoothstep(0.0, 0.85, h), 0.6))
+      : mix(uHorizon, uGround, smoothstep(0.0, 0.2, -h));
+    float sunSide = pow(max(0.0, cosB), 3.0) * (1.0 - smoothstep(0.0, 0.6, abs(h)));
+    col = mix(col, uBody, sunSide * 0.3 * uIsSun);
+
+    // stars (night): small soft dots, some twinkle
     vec3 sp = d * 260.0;
     float r = hash(floor(sp));
-    float starSize = 0.12 + 0.2 * fract(r * 17.0);
-    float dot_ = 1.0 - step(starSize, length(fract(sp) - 0.5));
-    float tw = 0.65 + 0.35 * sin(uTime * 2.0 + r * 60.0);
-    col = mix(col, vec3(1.0), step(0.994, r) * dot_ * smoothstep(0.04, 0.2, h) * uStars * tw);
+    float starSize = 0.1 + 0.16 * fract(r * 17.0);
+    float dot_ = 1.0 - smoothstep(starSize * 0.4, starSize, length(fract(sp) - 0.5));
+    float tw = 0.6 + 0.4 * sin(uTime * 2.0 + r * 60.0);
+    col += vec3(1.2) * step(0.994, r) * dot_ * smoothstep(0.04, 0.25, h) * uStars * tw;
 
-    // flat toon clouds in a band above the horizon
-    vec2 cuv = d.xz / (h + 0.18) * 1.3 + vec2(uTime * 0.006, 0.0);
-    float n = fbm(cuv);
-    float band = smoothstep(0.02, 0.1, h) * (1.0 - smoothstep(0.32, 0.55, h));
-    float cloud = step(0.6, n) * band;
-    float cloudLit = step(0.68, n) * band;
-    col = mix(col, mix(uClouds, uHorizon, 0.35), cloud * 0.9);
-    col = mix(col, uClouds, cloudLit * 0.9);
+    // big soft clouds, lit on the side facing the sun, lavender undersides
+    vec2 uv = d.xz / (h + 0.22) * 0.9 + vec2(uTime * 0.004, uTime * 0.0015);
+    float n = fbm(uv);
+    float n2 = fbm(uv + normalize(B.xz + 1e-4) * 0.09);
+    float cover = smoothstep(0.47, 0.72, n) * smoothstep(0.015, 0.14, h) * (1.0 - smoothstep(0.4, 0.75, h));
+    float lit = clamp(0.55 + (n - n2) * 7.0, 0.0, 1.0);
+    vec3 cloudShade = mix(uClouds, uTop, 0.5) * 0.9;
+    vec3 cloudLight = mix(uClouds, uBody, 0.2 * uIsSun);
+    vec3 cloudCol = mix(cloudShade, cloudLight, lit) + uBody * pow(max(cosB, 0.0), 14.0) * 0.5;
+    col = mix(col, cloudCol, cover * 0.92);
 
-    // sun / moon: crisp disc + two stepped halo rings (toon bloom)
-    float a = acos(clamp(dot(d, normalize(uBodyDir)), -1.0, 1.0));
-    float size = mix(0.045, 0.06, uIsSun);
-    col = mix(col, mix(col, uBody, 0.35), step(a, size * 3.4));
-    col = mix(col, mix(col, uBody, 0.6), step(a, size * 2.0));
-    col = mix(col, uBody * mix(1.05, 1.25, uIsSun), step(a, size));
+    // sun / moon: HDR disc + soft layered glow (bloom does the rest)
+    float a = acos(clamp(cosB, -1.0, 1.0));
+    float size = mix(0.032, 0.042, uIsSun);
+    float disc = 1.0 - smoothstep(size * 0.8, size, a);
+    float c = max(cosB, 0.0);
+    col += uBody * (pow(c, 900.0) * 0.8 + pow(c, 60.0) * 0.22 + pow(c, 8.0) * 0.08) * mix(0.6, 1.0, uIsSun);
+    col = mix(col, uBody * mix(1.4, 3.2, uIsSun), disc * (1.0 - cover * 0.75));
 
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>
@@ -129,7 +138,6 @@ function Palm({ position, scale = 1, lean = 0 }: { position: [number, number, nu
           key={i}
           color={i % 2 ? '#8a5a3c' : '#a06a45'}
           position={[i * 0.06, 0.5 + i * 0.95, 0]}
-          outline={0.8}
         >
           <cylinderGeometry args={[0.2 - i * 0.02, 0.24 - i * 0.02, 1.0, 8]} />
         </Part>
@@ -137,12 +145,12 @@ function Palm({ position, scale = 1, lean = 0 }: { position: [number, number, nu
       <group position={[0.3, 5.1, 0]}>
         {leaves.map((a) => (
           <group key={a} rotation-y={a}>
-            <Part color="#3f9b52" position={[1.1, -0.3, 0]} rotation-z={-0.45} scale={[1.5, 0.12, 0.42]} outline={0.8}>
+            <Part color="#3f9b52" position={[1.1, -0.3, 0]} rotation-z={-0.45} scale={[1.5, 0.12, 0.42]}>
               <sphereGeometry args={[1, 10, 6]} />
             </Part>
           </group>
         ))}
-        <Part color="#6b4a2f" outline={0.8}>
+        <Part color="#6b4a2f">
           <sphereGeometry args={[0.35, 10, 8]} />
         </Part>
       </group>
@@ -156,29 +164,29 @@ function Lighthouse() {
   useFrame((_, dt) => {
     if (!view.reduced) beam.current.rotation.y += dt * 0.9
     beam.current.visible = palette.lamp > 0.4
-    glass.current.color.setRGB(1, 0.85, 0.5).multiplyScalar(0.5 + palette.lamp * 0.8)
+    glass.current.color.setRGB(1, 0.85, 0.5).multiplyScalar(0.6 + palette.lamp * 2.6) // HDR → bloom
   })
   return (
     <group position={[14, SEA_Y, -36]} scale={1.35}>
       {/* breakwater */}
-      <Part color="#9a8f86" position={[-6, 0.4, 0]} outline={0.8}>
+      <Part color="#9a8f86" position={[-6, 0.4, 0]}>
         <boxGeometry args={[14, 0.8, 1.6]} />
       </Part>
       {/* tower (La Farola is short and whitewashed) */}
-      <Part color="#f4efe6" position={[0, 0.8 + 1.4, 0]} outline={0.8}>
+      <Part color="#f4efe6" position={[0, 0.8 + 1.4, 0]}>
         <boxGeometry args={[2.4, 2.8, 2.4]} />
       </Part>
-      <Part color="#f4efe6" position={[0, 3.6 + 1.8, 0]} outline={0.8}>
+      <Part color="#f4efe6" position={[0, 3.6 + 1.8, 0]}>
         <cylinderGeometry args={[0.7, 0.85, 3.6, 12]} />
       </Part>
-      <Part color="#3b3a4a" position={[0, 7.45, 0]} outline={0.8}>
+      <Part color="#3b3a4a" position={[0, 7.45, 0]}>
         <cylinderGeometry args={[0.9, 0.9, 0.18, 12]} />
       </Part>
       <mesh position={[0, 8.0, 0]}>
         <cylinderGeometry args={[0.55, 0.55, 0.9, 12]} />
         <meshBasicMaterial ref={glass as never} toneMapped={false} />
       </mesh>
-      <Part color="#c0392b" position={[0, 8.75, 0]} outline={0.8}>
+      <Part color="#c0392b" position={[0, 8.75, 0]}>
         <coneGeometry args={[0.7, 0.7, 12]} />
       </Part>
       <group ref={beam} position={[0, 8.0, 0]}>
@@ -201,16 +209,16 @@ function FerrisWheel() {
     wheel.current.children.forEach((c) => {
       if (c.userData.cabin) c.rotation.z = -wheel.current.rotation.z
     })
-    lights.current.color.set(palette.lamp > 0.4 ? '#ffd27a' : '#e8e2d6')
+    lights.current.color.set(palette.lamp > 0.4 ? '#ffd27a' : '#e8e2d6').multiplyScalar(1 + palette.lamp * 1.6)
   })
   return (
     <group position={[-5.5, SEA_Y, -30]} rotation-y={0.35}>
       {[-1, 1].map((s) => (
         <group key={s} position={[0, 0, s * 0.6]}>
-          <Part color="#e8e2d6" position={[-1.6, 3.3, 0]} rotation-z={-0.42} outline={0.8}>
+          <Part color="#e8e2d6" position={[-1.6, 3.3, 0]} rotation-z={-0.42}>
             <boxGeometry args={[0.25, 7.2, 0.25]} />
           </Part>
-          <Part color="#e8e2d6" position={[1.6, 3.3, 0]} rotation-z={0.42} outline={0.8}>
+          <Part color="#e8e2d6" position={[1.6, 3.3, 0]} rotation-z={0.42}>
             <boxGeometry args={[0.25, 7.2, 0.25]} />
           </Part>
         </group>
@@ -222,14 +230,14 @@ function FerrisWheel() {
         </mesh>
         {cabins.map((a) => (
           <group key={a} rotation-z={a}>
-            <Part color="#e8e2d6" position={[0, 2.1, 0]} outline={0.6}>
+            <Part color="#e8e2d6" position={[0, 2.1, 0]}>
               <boxGeometry args={[0.08, 4.2, 0.08]} />
             </Part>
           </group>
         ))}
         {cabins.map((a, i) => (
           <group key={`c${a}`} position={[Math.cos(a) * 4.2, Math.sin(a) * 4.2, 0]} userData={{ cabin: true }}>
-            <Part color={['#ff7849', '#2a9d8f', '#ffd166'][i % 3]} position={[0, -0.45, 0]} outline={0.8}>
+            <Part color={['#ff7849', '#2a9d8f', '#ffd166'][i % 3]} position={[0, -0.45, 0]}>
               <boxGeometry args={[0.6, 0.6, 0.6]} />
             </Part>
           </group>
@@ -245,10 +253,10 @@ export default function Outside() {
       <Sky />
       <Sea />
       {/* beach + promenade between the building and the sea */}
-      <Part color="#e9cf9b" position={[0, SEA_Y - 0.25, -10]} outline={false}>
+      <Part color="#f0d8aa" position={[0, SEA_Y - 0.25, -10]}>
         <boxGeometry args={[320, 0.5, 13]} />
       </Part>
-      <Part color="#d8cfc4" position={[0, SEA_Y - 0.2, 14]} outline={false}>
+      <Part color="#d8cfc4" position={[0, SEA_Y - 0.2, 14]}>
         <boxGeometry args={[320, 0.5, 35]} />
       </Part>
       <Palm position={[-7, SEA_Y, -7.5]} scale={1.05} lean={0.05} />
@@ -258,7 +266,7 @@ export default function Outside() {
       <Lighthouse />
       <FerrisWheel />
       {/* a hint of the coast curving west */}
-      <Part color="#6f7fa6" position={[70, SEA_Y, -120]} scale={[40, 7, 14]} outline={false}>
+      <Part color="#6f7fa6" position={[70, SEA_Y, -120]} scale={[40, 7, 14]}>
         <sphereGeometry args={[1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
       </Part>
     </>

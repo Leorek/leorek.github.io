@@ -72,7 +72,7 @@ const en = {
     tag: 'Say hi',
     title: 'Got something worth building?',
     body: 'Based in Málaga, with sea views, working with teams anywhere. Drop me a line.',
-    footer: 'Built with three.js, toon shaders & too much coffee',
+    footer: 'Built with three.js, hand-written shaders & too much coffee',
   },
 }
 
@@ -150,7 +150,7 @@ const es: Copy = {
     tag: 'Saluda',
     title: '¿Tienes algo que merezca la pena construir?',
     body: 'Desde Málaga, con vistas al mar, trabajando con equipos de cualquier sitio. Escríbeme.',
-    footer: 'Hecho con three.js, shaders toon y demasiado café',
+    footer: 'Hecho con three.js, shaders escritos a mano y demasiado café',
   },
 }
 

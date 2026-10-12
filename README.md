@@ -1,6 +1,6 @@
 # leorek.github.io
 
-Personal site — **Leo's studio**: a toon-shaded 3D room on the Málaga seafront.
+Personal site — **Leo's studio**: a painterly (RiME-inspired) 3D room on the Málaga seafront.
 Scroll for a guided tour (desk → arcade → turntable → coaster model → travel
 board → window), or click any object to jump to it. The room follows real
 Málaga time (day, sunset, night); the desk lamp / sun-moon button
@@ -11,8 +11,9 @@ Design document (in Spanish): [`docs/DESIGN.md`](docs/DESIGN.md).
 ## Stack
 
 - **Vite 8 + React 19 + TypeScript**
-- **react-three-fiber 9 + drei 10 + three r186** — the studio (toon materials,
-  inverted-hull outlines, custom GLSL sky and Gerstner-wave sea)
+- **react-three-fiber 9 + drei 10 + three r186** — the studio (soft matte
+  materials, coloured-shadow lighting, custom GLSL sky and sea)
+- **@react-three/postprocessing** — N8AO, bloom, neutral tone mapping, vignette
 - **Lenis** — smooth scroll; **Tailwind CSS v4** — UI
 
 ## Develop
@@ -23,8 +24,8 @@ pnpm dev      # http://localhost:5173
 pnpm build    # -> dist/
 ```
 
-Handy URL params: `?t=19.5` pins the clock (e.g. sunset), `#parks` deep-links
-to a station.
+Handy URL params: `?t=19.5` pins the clock (e.g. sunset), `?q=high|low` pins the
+quality tier, `?dpr=1` the pixel ratio; `#parks` deep-links to a station.
 
 ## Edit content
 

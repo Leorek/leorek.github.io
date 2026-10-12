@@ -1,12 +1,9 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { useThree, type ThreeElements, type ThreeEvent } from '@react-three/fiber'
-import { Outlines } from '@react-three/drei'
+import type { ThreeElements, ThreeEvent } from '@react-three/fiber'
 import {
   BoxGeometry,
   CanvasTexture,
-  DataTexture,
   NearestFilter,
-  RedFormat,
   SRGBColorSpace,
   type BufferGeometry,
   type ColorRepresentation,
@@ -15,23 +12,17 @@ import {
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { goto } from '../lib/view-state'
 
-export const INK = '#1d1a2b'
-export const EMBER = '#ff7849'
+// Painterly building blocks (RiME-ish): soft matte surfaces, no outlines.
+// The look comes from the lighting — warm sun, lavender sky fill so shadows
+// are coloured rather than grey — plus AO, bloom and haze in post.
 
-// 3-band cel shading: shadow / mid / lit, hard steps (nearest filtering).
-export const GRADIENT = (() => {
-  const t = new DataTexture(new Uint8Array([90, 175, 255]), 3, 1, RedFormat)
-  t.minFilter = NearestFilter
-  t.magFilter = NearestFilter
-  t.generateMipmaps = false
-  t.needsUpdate = true
-  return t
-})()
+export const INK = '#2a2440' // dark accent for canvas drawings
+export const EMBER = '#ff7849'
 
 // ---- geometry cache --------------------------------------------------------
 const geoCache = new Map<string, BufferGeometry>()
 /** Rounded box, cached by size. r = corner radius. */
-export function rbox(w: number, h: number, d: number, r = 0.04, seg = 2) {
+export function rbox(w: number, h: number, d: number, r = 0.04, seg = 3) {
   const key = `rb:${w}:${h}:${d}:${r}:${seg}`
   let g = geoCache.get(key)
   if (!g) {
@@ -41,58 +32,47 @@ export function rbox(w: number, h: number, d: number, r = 0.04, seg = 2) {
   return g
 }
 
-// ---- outlines --------------------------------------------------------------
-// Hovering a hotspot turns every outline inside it ember.
-const OutlineColor = createContext<string>(INK)
-
-/** Outline width in device pixels, roughly constant on screen. */
-function useOutlineWidth() {
-  const dpr = useThree((s) => s.viewport.dpr)
-  return 2.3 * dpr
-}
+// Hovering a hotspot makes everything inside it glow warmly (bloom picks it up).
+const Hovered = createContext(false)
 
 type PartProps = Omit<ThreeElements['mesh'], 'children'> & {
   color: ColorRepresentation
-  /** false = no outline; number = width multiplier */
-  outline?: boolean | number
   map?: Texture | null
   emissive?: ColorRepresentation
   emissiveIntensity?: number
+  roughness?: number
   shadows?: boolean
   children?: ReactNode
 }
 
-/** A cel-shaded, ink-outlined mesh — the building block of the studio. */
+/** A soft, matte, painterly mesh — the building block of the studio. */
 export function Part({
   color,
-  outline = true,
   map = null,
   emissive = '#000000',
   emissiveIntensity = 1,
+  roughness = 0.9,
   shadows = true,
   children,
   ...props
 }: PartProps) {
-  const ink = useContext(OutlineColor)
-  const width = useOutlineWidth()
+  const hover = useContext(Hovered)
   return (
     <mesh castShadow={shadows} receiveShadow={shadows} {...props}>
       {children}
-      <meshToonMaterial
+      <meshStandardMaterial
         color={color}
-        gradientMap={GRADIENT}
         map={map}
-        emissive={emissive}
-        emissiveIntensity={emissiveIntensity}
+        roughness={roughness}
+        metalness={0}
+        emissive={hover ? EMBER : emissive}
+        emissiveIntensity={hover ? 0.32 : emissiveIntensity}
       />
-      {outline !== false && (
-        <Outlines thickness={width * (typeof outline === 'number' ? outline : 1)} color={ink} />
-      )}
     </mesh>
   )
 }
 
-/** Unlit mesh for screens / signs — always full brightness, no outline. */
+/** Unlit mesh for screens / signs — self-lit, picked up by bloom. */
 export function Glow({
   map,
   color = '#ffffff',
@@ -106,7 +86,7 @@ export function Glow({
   return (
     <mesh {...props}>
       {children}
-      <meshBasicMaterial map={map ?? null} color={color} toneMapped={false} />
+      <meshBasicMaterial map={map ?? null} color={color} />
     </mesh>
   )
 }
@@ -151,7 +131,7 @@ export function Hotspot({
         else goto(id)
       }}
     >
-      <OutlineColor.Provider value={hover ? EMBER : INK}>{children}</OutlineColor.Provider>
+      <Hovered.Provider value={hover}>{children}</Hovered.Provider>
     </group>
   )
 }
@@ -185,5 +165,6 @@ export function canvasTexture(
   return { tex, ctx, canvas: c }
 }
 
-export const FONT_DISPLAY = '"Bricolage Grotesque", system-ui, sans-serif'
+export const FONT_DISPLAY = '"Fraunces", Georgia, serif'
+export const FONT_SANS = '"Inter", system-ui, sans-serif'
 export const FONT_MONO = '"JetBrains Mono", ui-monospace, monospace'

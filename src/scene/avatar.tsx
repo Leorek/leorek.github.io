@@ -7,17 +7,22 @@ import { BOARD } from './props/cork-map'
 import { coasterLead, COASTER } from './props/coaster'
 import { DESK } from './props/desk'
 import { kick, TURNTABLE } from './props/turntable'
-import { Part, rbox } from './toon'
+import { Part, rbox } from './paint'
 
-// Mini-Leo: short dark hair, full beard, light henley — after the avatar.
-// He sits at the desk on a swivel chair and reacts to the current station.
+// Mini-Leo, after his photo: broad round face, short fade swept to one side,
+// trimmed boxed beard + moustache, thick straight brows, pale-lime tee with
+// a teddy-on-a-radio print, backpack hanging off the chair. He sits at the
+// desk on a swivel chair and reacts to the current station.
 
-const SKIN = '#f3cdb0'
-const HAIR = '#2a211d'
-const SHIRT = '#ddd0ba'
-const JEANS = '#34446b'
+const SKIN = '#e6b48e'
+const SKIN_SHADE = '#d79f7a'
+const HAIR = '#2b211b'
+const FADE = '#76594a' // the short sides of a skin fade
+const BEARD = '#3b2c23'
+const SHIRT = '#e2eaa4'
+const PANTS = '#3a4258'
 const CHAIR = { x: DESK.x, z: -2.25 }
-const HEAD_Y = 1.95
+const HEAD_Y = 1.99
 
 type Pose = 'type' | 'rest' | 'grip' | 'wave' | 'cheer'
 type Look = 'camera' | Vector3
@@ -58,27 +63,91 @@ function behaviour(station: number, boosted: boolean): { face: Look; look: Look;
 // [shoulderX, shoulderZ, elbowX] per side (left arm sits at +x)
 const POSES: Record<Pose, { l: number[]; r: number[] }> = {
   type: { l: [-0.95, 0.12, -0.75], r: [-0.95, -0.12, -0.75] },
-  rest: { l: [-0.3, 0.1, -1.25], r: [-0.3, -0.1, -1.25] },
+  rest: { l: [-0.3, 0.12, -1.25], r: [-0.3, -0.12, -1.25] },
   grip: { l: [-0.75, 0.2, -1.5], r: [-0.75, -0.2, -1.5] },
-  wave: { l: [-0.3, 0.1, -1.25], r: [0, -2.55, -0.2] },
+  wave: { l: [-0.3, 0.12, -1.25], r: [0, -2.55, -0.2] },
   cheer: { l: [0, 2.7, -0.25], r: [0, -2.7, -0.25] },
 }
 
 function Arm({ side, armRef }: { side: 1 | -1; armRef: React.RefObject<Group | null> }) {
   return (
-    <group ref={armRef} position={[side * 0.33, 0.55, 0]}>
-      <Part color={SHIRT} position={[0, -0.15, 0]} outline={0.8}>
-        <capsuleGeometry args={[0.085, 0.22, 4, 10]} />
+    <group ref={armRef} position={[side * 0.38, 0.55, 0]}>
+      {/* short tee sleeve, then bare arm */}
+      <Part color={SHIRT} position={[0, -0.07, 0]}>
+        <capsuleGeometry args={[0.115, 0.08, 4, 12]} />
       </Part>
-      <group name="elbow" position={[0, -0.32, 0]}>
-        <Part color={SHIRT} position={[0, -0.13, 0]} outline={0.8}>
-          <capsuleGeometry args={[0.075, 0.2, 4, 10]} />
+      <Part color={SKIN} position={[0, -0.19, 0]}>
+        <capsuleGeometry args={[0.095, 0.18, 4, 10]} />
+      </Part>
+      <group name="elbow" position={[0, -0.33, 0]}>
+        <Part color={SKIN} position={[0, -0.13, 0]}>
+          <capsuleGeometry args={[0.087, 0.2, 4, 10]} />
         </Part>
-        <Part color={SKIN} position={[0, -0.29, 0]} outline={0.8}>
-          <sphereGeometry args={[0.075, 12, 10]} />
+        <Part color={SKIN} position={[0, -0.29, 0]}>
+          <sphereGeometry args={[0.082, 12, 10]} />
         </Part>
       </group>
     </group>
+  )
+}
+
+function Head() {
+  return (
+    <>
+      {/* broad, round face + full cheeks */}
+      <Part color={SKIN} position={[0, 0.36, 0]} scale={[1.08, 1, 0.98]}>
+        <sphereGeometry args={[0.38, 28, 20]} />
+      </Part>
+      {[-1, 1].map((s) => (
+        <Part key={s} color={SKIN} position={[s * 0.17, 0.3, 0.22]}>
+          <sphereGeometry args={[0.13, 14, 10]} />
+        </Part>
+      ))}
+      {[-1, 1].map((s) => (
+        <Part key={s} color={SKIN_SHADE} position={[s * 0.405, 0.35, -0.01]} scale={[0.5, 1, 0.75]}>
+          <sphereGeometry args={[0.08, 12, 8]} />
+        </Part>
+      ))}
+      {/* hair: short fade on the sides, volume on top, swept to his right */}
+      <Part color={FADE} position={[0, 0.41, -0.07]} scale={[1.09, 0.82, 1]}>
+        <sphereGeometry args={[0.394, 24, 16]} />
+      </Part>
+      <Part color={HAIR} position={[0.01, 0.6, -0.04]} scale={[1.0, 0.46, 1.0]}>
+        <sphereGeometry args={[0.37, 24, 14]} />
+      </Part>
+      <Part color={HAIR} position={[-0.07, 0.68, 0.2]} rotation-z={0.22} scale={[1.5, 0.4, 0.85]}>
+        <sphereGeometry args={[0.17, 16, 10]} />
+      </Part>
+      {/* trimmed boxed beard + fuller chin, moustache, lips */}
+      <Part color={BEARD} position={[0, 0.15, -0.01]} scale={[1.07, 0.52, 0.97]}>
+        <sphereGeometry args={[0.385, 24, 16]} />
+      </Part>
+      <Part color={BEARD} position={[0, 0.07, 0.29]} scale={[0.9, 0.7, 0.6]}>
+        <sphereGeometry args={[0.11, 14, 10]} />
+      </Part>
+      {[-1, 1].map((s) => (
+        <Part key={s} color={BEARD} position={[s * 0.06, 0.255, 0.378]} rotation-z={Math.PI / 2 + s * 0.28}>
+          <capsuleGeometry args={[0.026, 0.09, 4, 8]} />
+        </Part>
+      ))}
+      <Part color="#c4846e" position={[0, 0.2, 0.388]} rotation-z={Math.PI / 2}>
+        <capsuleGeometry args={[0.026, 0.08, 4, 8]} />
+      </Part>
+      {/* broad nose */}
+      <Part color={SKIN_SHADE} position={[0, 0.31, 0.372]} scale={[1.25, 0.9, 1]}>
+        <sphereGeometry args={[0.07, 14, 10]} />
+      </Part>
+      {/* thick straight brows */}
+      {[-1, 1].map((s) => (
+        <Part
+          key={s}
+          color={HAIR}
+          position={[s * 0.14, 0.505, 0.33]}
+          rotation-z={s * 0.05}
+          geometry={rbox(0.16, 0.042, 0.03, 0.012)}
+        />
+      ))}
+    </>
   )
 }
 
@@ -106,7 +175,8 @@ export default function Avatar() {
     // head follows the look target within neck limits
     const yaw = MathUtils.clamp(wrap(yawTo(lookPos) - body.current.rotation.y), -0.9, 0.9)
     const flat = Math.hypot(lookPos.x - CHAIR.x, lookPos.z - CHAIR.z)
-    let pitch = MathUtils.clamp(-Math.atan2(lookPos.y - HEAD_Y, flat), -0.45, 0.4)
+    // (looking down is capped so his eyes stay visible under the brows)
+    let pitch = MathUtils.clamp(-Math.atan2(lookPos.y - HEAD_Y, flat), -0.45, 0.22)
     if (view.station === 3 && !view.reduced) pitch += kick(t) * 0.16 // groove
     head.current.rotation.y = MathUtils.damp(head.current.rotation.y, yaw, 5 * motion, dt)
     head.current.rotation.x = MathUtils.damp(head.current.rotation.x, pitch, 8 * motion, dt)
@@ -116,7 +186,8 @@ export default function Avatar() {
     // breathing + blinking
     torso.current.scale.y = 1 + Math.sin(t * 2.2) * 0.012
     const bl = blink.current
-    if (t > bl.next) {
+    // (skipped on very slow frames, where a 0.12 s blink would freeze shut)
+    if (t > bl.next && dt < 0.1) {
       bl.until = t + 0.12
       bl.next = t + 2.5 + Math.random() * 3
     }
@@ -145,124 +216,97 @@ export default function Avatar() {
   return (
     <group position={[CHAIR.x, 0, CHAIR.z]}>
       {/* chair base (doesn't swivel) */}
-      <Part color="#3b3550" position={[0, 0.32, 0]} outline={0.7}>
+      <Part color="#3b3550" position={[0, 0.32, 0]}>
         <cylinderGeometry args={[0.04, 0.04, 0.5, 8]} />
       </Part>
       {[0, 1, 2, 3, 4].map((i) => (
         <group key={i} rotation-y={(i / 5) * Math.PI * 2}>
-          <Part color="#3b3550" position={[0, 0.09, 0.2]} outline={0.6}>
+          <Part color="#3b3550" position={[0, 0.09, 0.2]}>
             <boxGeometry args={[0.06, 0.05, 0.4]} />
           </Part>
-          <Part color={HAIR} position={[0, 0.04, 0.38]} outline={0.5}>
+          <Part color="#22202b" position={[0, 0.04, 0.38]}>
             <sphereGeometry args={[0.045, 8, 6]} />
           </Part>
         </group>
       ))}
 
       <group ref={body} rotation-y={0.7}>
-        {/* seat + backrest */}
-        <Part color="#3b3550" position={[0, 0.6, 0]} geometry={rbox(0.64, 0.1, 0.6, 0.04)} />
-        <Part color="#ff7849" position={[0, 1.08, -0.34]} rotation-x={-0.12} geometry={rbox(0.62, 0.8, 0.1, 0.05)} />
-        <Part color="#3b3550" position={[0, 0.82, -0.32]} outline={0.6}>
+        {/* seat + backrest + his backpack hanging off the back */}
+        <Part color="#3b3550" position={[0, 0.6, 0]} geometry={rbox(0.7, 0.1, 0.62, 0.04)} />
+        <Part color="#e0714f" position={[0, 1.08, -0.34]} rotation-x={-0.12} geometry={rbox(0.66, 0.8, 0.1, 0.05)} />
+        <Part color="#3b3550" position={[0, 0.82, -0.32]}>
           <boxGeometry args={[0.08, 0.4, 0.05]} />
         </Part>
+        <group position={[0, 1.0, -0.52]} rotation-x={-0.12}>
+          <Part color="#1f1f26" geometry={rbox(0.46, 0.56, 0.22, 0.09)} />
+          <Part color="#26262e" position={[0, -0.12, -0.12]} geometry={rbox(0.34, 0.22, 0.06, 0.04)} />
+          {[-1, 1].map((x) => (
+            <Part key={x} color="#1f1f26" position={[x * 0.13, 0.36, 0.1]} geometry={rbox(0.05, 0.22, 0.16, 0.02)} />
+          ))}
+        </group>
 
         {/* legs */}
-        <Part color={JEANS} position={[0, 0.74, -0.05]} geometry={rbox(0.5, 0.22, 0.4, 0.08)} />
+        <Part color={PANTS} position={[0, 0.74, -0.05]} geometry={rbox(0.58, 0.24, 0.44, 0.09)} />
         {[-1, 1].map((s) => (
           <group key={s}>
-            <Part color={JEANS} position={[s * 0.14, 0.76, 0.2]} rotation-x={Math.PI / 2} outline={0.8}>
-              <capsuleGeometry args={[0.11, 0.3, 4, 10]} />
+            <Part color={PANTS} position={[s * 0.16, 0.76, 0.2]} rotation-x={Math.PI / 2}>
+              <capsuleGeometry args={[0.13, 0.3, 4, 12]} />
             </Part>
-            <Part color={JEANS} position={[s * 0.14, 0.42, 0.4]} outline={0.8}>
-              <capsuleGeometry args={[0.1, 0.32, 4, 10]} />
+            <Part color={PANTS} position={[s * 0.16, 0.42, 0.4]}>
+              <capsuleGeometry args={[0.11, 0.32, 4, 10]} />
             </Part>
-            <Part color="#2b2a33" position={[s * 0.14, 0.1, 0.47]} geometry={rbox(0.17, 0.12, 0.3, 0.05)} outline={0.8} />
+            <Part color="#2b2a33" position={[s * 0.16, 0.1, 0.47]} geometry={rbox(0.18, 0.12, 0.3, 0.05)} />
           </group>
         ))}
 
         <group ref={torso} position={[0, 0.85, -0.05]}>
-          <Part color={SHIRT} position={[0, 0.32, 0]} scale={[1.1, 1, 0.85]}>
-            <capsuleGeometry args={[0.27, 0.28, 6, 14]} />
+          {/* broad torso + a bit of belly, crew-neck tee */}
+          <Part color={SHIRT} position={[0, 0.33, 0]} scale={[1.15, 1, 0.95]}>
+            <capsuleGeometry args={[0.32, 0.26, 8, 16]} />
           </Part>
-          {[0.56, 0.48, 0.4].map((y) => (
-            <Part key={y} color="#6b5f4f" position={[0, y, 0.235]} outline={false}>
-              <sphereGeometry args={[0.018, 8, 6]} />
+          <Part color={SHIRT} position={[0, 0.2, 0.08]} scale={[1.12, 0.9, 0.9]}>
+            <sphereGeometry args={[0.28, 18, 14]} />
+          </Part>
+          <Part color="#d3db92" position={[0, 0.655, 0.02]} rotation-x={Math.PI / 2}>
+            <torusGeometry args={[0.12, 0.026, 8, 20]} />
+          </Part>
+          {/* the print: a sleepy teddy on an old radio */}
+          <group position={[0.02, 0.42, 0.302]}>
+            <Part color="#3b3a40" geometry={rbox(0.2, 0.06, 0.02, 0.01)} shadows={false} />
+            <Part color="#e3a33a" position={[0.02, 0.055, 0.004]} scale={[1.7, 0.75, 0.35]} shadows={false}>
+              <sphereGeometry args={[0.045, 12, 8]} />
             </Part>
-          ))}
-          <Part color={SKIN} position={[0, 0.69, 0]} outline={0.7}>
-            <cylinderGeometry args={[0.09, 0.1, 0.14, 12]} />
+            <Part color="#e3a33a" position={[-0.07, 0.07, 0.006]} scale={[1, 1, 0.4]} shadows={false}>
+              <sphereGeometry args={[0.033, 10, 8]} />
+            </Part>
+          </group>
+          <Part color={SKIN} position={[0, 0.7, 0]}>
+            <cylinderGeometry args={[0.12, 0.13, 0.14, 14]} />
           </Part>
           <Arm side={1} armRef={armL} />
           <Arm side={-1} armRef={armR} />
 
-          <group ref={head} position={[0, 0.76, 0]}>
-            <Part color={SKIN} position={[0, 0.34, 0]} scale={[1, 1.02, 0.95]}>
-              <sphereGeometry args={[0.36, 24, 18]} />
-            </Part>
-            {/* ears */}
-            {[-1, 1].map((s) => (
-              <Part key={s} color={SKIN} position={[s * 0.35, 0.33, 0]} scale={[0.5, 1, 0.8]} outline={0.7}>
-                <sphereGeometry args={[0.075, 10, 8]} />
-              </Part>
-            ))}
-            {/* hair: cap + front quiff */}
-            <Part color={HAIR} position={[0, 0.5, -0.06]} scale={[1.0, 0.66, 1.02]}>
-              <sphereGeometry args={[0.38, 22, 14]} />
-            </Part>
-            <Part color={HAIR} position={[0, 0.36, -0.08]} scale={[0.98, 0.88, 0.95]} outline={false}>
-              <sphereGeometry args={[0.36, 20, 14]} />
-            </Part>
-            <Part color={HAIR} position={[0.06, 0.68, 0.16]} scale={[1.35, 0.55, 0.95]} outline={0.8}>
-              <sphereGeometry args={[0.16, 14, 10]} />
-            </Part>
-            {/* full beard + moustache */}
-            <Part color={HAIR} position={[0, 0.14, 0.06]} scale={[1.04, 0.78, 0.95]}>
-              <sphereGeometry args={[0.33, 22, 14]} />
-            </Part>
-            {[-1, 1].map((s) => (
-              <Part
-                key={s}
-                color={HAIR}
-                position={[s * 0.07, 0.235, 0.36]}
-                rotation-z={Math.PI / 2 + s * 0.35}
-                outline={0.6}
-              >
-                <capsuleGeometry args={[0.028, 0.09, 4, 8]} />
-              </Part>
-            ))}
-            <Part color="#5a2e2a" position={[0, 0.17, 0.372]} rotation-z={Math.PI / 2} outline={false}>
-              <capsuleGeometry args={[0.014, 0.07, 4, 6]} />
-            </Part>
-            {/* nose */}
-            <Part color="#eab896" position={[0, 0.3, 0.35]} outline={0.6}>
-              <sphereGeometry args={[0.055, 12, 10]} />
-            </Part>
-            {/* eyes + brows */}
-            <group ref={eyes} position={[0, 0.38, 0]}>
+          <group ref={head} position={[0, 0.78, 0]}>
+            <Head />
+            {/* eyes: soft white + dark brown iris, own group so they can blink */}
+            <group ref={eyes} position={[0, 0.41, 0]}>
               {[-1, 1].map((s) => (
-                <group key={s}>
-                  <mesh position={[s * 0.12, 0, 0.322]} scale={[0.85, 1.25, 0.5]}>
-                    <sphereGeometry args={[0.045, 12, 10]} />
-                    <meshBasicMaterial color="#1d1a2b" />
+                <group key={s} position={[s * 0.135, 0, 0]}>
+                  <mesh position={[0, 0, 0.356]} scale={[1.15, 0.9, 0.4]}>
+                    <sphereGeometry args={[0.056, 16, 12]} />
+                    <meshStandardMaterial color="#f6efe6" roughness={0.6} />
                   </mesh>
-                  <mesh position={[s * 0.12 + 0.014, 0.018, 0.345]}>
-                    <sphereGeometry args={[0.012, 6, 6]} />
+                  <mesh position={[s * -0.004, -0.002, 0.374]} scale={[1, 1, 0.45]}>
+                    <sphereGeometry args={[0.033, 14, 10]} />
+                    <meshBasicMaterial color="#2b1d16" />
+                  </mesh>
+                  <mesh position={[0.012, 0.012, 0.388]}>
+                    <sphereGeometry args={[0.009, 8, 6]} />
                     <meshBasicMaterial color="#ffffff" />
                   </mesh>
                 </group>
               ))}
             </group>
-            {[-1, 1].map((s) => (
-              <Part
-                key={s}
-                color={HAIR}
-                position={[s * 0.13, 0.475, 0.315]}
-                rotation-z={s * 0.2}
-                geometry={rbox(0.14, 0.04, 0.05, 0.015)}
-                outline={false}
-              />
-            ))}
           </group>
         </group>
       </group>

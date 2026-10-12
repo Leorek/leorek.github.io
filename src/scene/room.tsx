@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { RepeatWrapping } from 'three'
-import { canvasTexture, FONT_DISPLAY, FONT_MONO, INK, Part, rbox } from './toon'
+import { canvasTexture, FONT_DISPLAY, FONT_MONO, INK, Part, rbox } from './paint'
 
 // The studio shell: a cut-away room (two walls + floor) on the top floor of
 // a seafront building, plus the decor that isn't a hotspot.
@@ -60,10 +60,10 @@ function Shell() {
         <group key={x}>
           {[-1.15, -2.65].map((y) => (
             <group key={y}>
-              <Part color="#3d5a8a" position={[x, y, ROOM.d / 2 + 0.22]} outline={0.8}>
+              <Part color="#3d5a8a" position={[x, y, ROOM.d / 2 + 0.22]}>
                 <boxGeometry args={[1.0, 0.95, 0.06]} />
               </Part>
-              <Part color={FRAME} position={[x, y - 0.55, ROOM.d / 2 + 0.3]} outline={0.8}>
+              <Part color={FRAME} position={[x, y - 0.55, ROOM.d / 2 + 0.3]}>
                 <boxGeometry args={[1.25, 0.1, 0.25]} />
               </Part>
             </group>
@@ -71,7 +71,7 @@ function Shell() {
         </group>
       ))}
       {[-2.4, 0.8].map((z) => (
-        <Part key={z} color="#3d5a8a" position={[ROOM.w / 2 + 0.22, -1.6, z]} outline={0.8}>
+        <Part key={z} color="#3d5a8a" position={[ROOM.w / 2 + 0.22, -1.6, z]}>
           <boxGeometry args={[0.06, 1.0, 1.3]} />
         </Part>
       ))}
@@ -82,7 +82,7 @@ function Shell() {
       </Part>
       <mesh rotation-x={-Math.PI / 2} position={[0.15, 0.002, 0.15]} receiveShadow>
         <planeGeometry args={[ROOM.w - T, ROOM.d - T]} />
-        <meshToonMaterial map={planks} color="#ffffff" />
+        <meshStandardMaterial roughness={0.9} map={planks} color="#ffffff" />
       </mesh>
 
       {/* back wall, built around the window opening */}
@@ -105,25 +105,25 @@ function Shell() {
       </Part>
 
       {/* cut caps on top of the walls */}
-      <Part color={CUT} position={[0, H + 0.04, BACK_Z]} outline={false}>
+      <Part color={CUT} position={[0, H + 0.04, BACK_Z]}>
         <boxGeometry args={[ROOM.w + 0.02, 0.08, T + 0.02]} />
       </Part>
-      <Part color={CUT} position={[LEFT_X, H + 0.04, 0]} outline={false}>
+      <Part color={CUT} position={[LEFT_X, H + 0.04, 0]}>
         <boxGeometry args={[T + 0.02, 0.08, ROOM.d + 0.02]} />
       </Part>
 
       {/* wainscot + skirting */}
       {/* (the window starts above the wainscot, so one strip spans the wall) */}
-      <Part color={WAINSCOT} position={[T / 2, 0.55, BACK_Z + T / 2 + 0.02]} outline={false}>
+      <Part color={WAINSCOT} position={[T / 2, 0.55, BACK_Z + T / 2 + 0.02]}>
         <boxGeometry args={[ROOM.w - T, 1.1, 0.04]} />
       </Part>
-      <Part color={WAINSCOT} position={[LEFT_X + T / 2 + 0.02, 0.55, T / 2]} outline={false}>
+      <Part color={WAINSCOT} position={[LEFT_X + T / 2 + 0.02, 0.55, T / 2]}>
         <boxGeometry args={[0.04, 1.1, ROOM.d - T]} />
       </Part>
-      <Part color="#f7f1e6" position={[T / 2, 1.12, BACK_Z + T / 2 + 0.04]} outline={0.6}>
+      <Part color="#f7f1e6" position={[T / 2, 1.12, BACK_Z + T / 2 + 0.04]}>
         <boxGeometry args={[ROOM.w - T, 0.06, 0.06]} />
       </Part>
-      <Part color="#f7f1e6" position={[LEFT_X + T / 2 + 0.04, 1.12, T / 2]} outline={0.6}>
+      <Part color="#f7f1e6" position={[LEFT_X + T / 2 + 0.04, 1.12, T / 2]}>
         <boxGeometry args={[0.06, 0.06, ROOM.d - T]} />
       </Part>
     </group>
@@ -151,14 +151,14 @@ function WindowFrame() {
         <boxGeometry args={[x1 - x0 + 0.4, 0.1, 0.62]} />
       </Part>
       {/* mullions */}
-      <Part color={FRAME} position={[cx, cy, z]} outline={0.7}>
+      <Part color={FRAME} position={[cx, cy, z]}>
         <boxGeometry args={[0.07, y1 - y0, 0.1]} />
       </Part>
-      <Part color={FRAME} position={[cx, y0 + (y1 - y0) * 0.62, z]} outline={0.7}>
+      <Part color={FRAME} position={[cx, y0 + (y1 - y0) * 0.62, z]}>
         <boxGeometry args={[x1 - x0, 0.07, 0.1]} />
       </Part>
       {/* curtains + rod */}
-      <Part color="#3b3550" position={[cx, y1 + 0.32, z + 0.32]} rotation-z={Math.PI / 2} outline={0.7}>
+      <Part color="#3b3550" position={[cx, y1 + 0.32, z + 0.32]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.035, 0.035, x1 - x0 + 1.4, 8]} />
       </Part>
       {[x0 - 0.38, x1 + 0.38].map((x, side) => (
@@ -186,7 +186,6 @@ function WindowFrame() {
             color="#4caf5f"
             position={[Math.cos(i * 1.3) * 0.08, 0.2 + i * 0.03, Math.sin(i * 1.3) * 0.08]}
             scale={[0.09, 0.14, 0.09]}
-            outline={0.7}
           >
             <sphereGeometry args={[1, 8, 6]} />
           </Part>
@@ -305,14 +304,14 @@ function Decor() {
         <Part color={INK} geometry={rbox(1.02, 1.32, 0.04, 0.02)} />
         <mesh position={[0, 0, 0.025]}>
           <planeGeometry args={[0.94, 1.24]} />
-          <meshToonMaterial map={posters.airtime} />
+          <meshStandardMaterial roughness={0.9} map={posters.airtime} />
         </mesh>
       </group>
       <group position={[-0.6, 3.3, wallZ + 0.03]} rotation-z={-0.04}>
         <Part color={INK} geometry={rbox(0.92, 1.18, 0.04, 0.02)} />
         <mesh position={[0, 0, 0.025]}>
           <planeGeometry args={[0.84, 1.1]} />
-          <meshToonMaterial map={posters.bpm} />
+          <meshStandardMaterial roughness={0.9} map={posters.bpm} />
         </mesh>
       </group>
 
@@ -323,10 +322,10 @@ function Decor() {
         </Part>
         <mesh position={[0, 0.062, 0]} rotation-x={-Math.PI / 2}>
           <circleGeometry args={[0.42, 28]} />
-          <meshToonMaterial map={posters.triskele} />
+          <meshStandardMaterial roughness={0.9} map={posters.triskele} />
         </mesh>
       </group>
-      <Part color="#6b4228" position={[wallX + 0.16, 2.3, 3.15]} rotation-x={0.5} outline={0.7}>
+      <Part color="#6b4228" position={[wallX + 0.16, 2.3, 3.15]} rotation-x={0.5}>
         <capsuleGeometry args={[0.025, 0.42, 4, 8]} />
       </Part>
 
@@ -339,29 +338,28 @@ function Decor() {
             color={c}
             position={[0, 0.24 + (i % 3) * 0.02, -0.65 + i * 0.13]}
             rotation-x={i === 5 ? 0.25 : 0}
-            outline={0.7}
             geometry={rbox(0.3, 0.42 + (i % 3) * 0.05, 0.11, 0.015)}
           />
         ))}
         {/* tiny trophy */}
         <group position={[0, 0.04, 0.55]}>
-          <Part color="#e8b93a" position={[0, 0.06, 0]} outline={0.7}>
+          <Part color="#e8b93a" position={[0, 0.06, 0]}>
             <cylinderGeometry args={[0.1, 0.12, 0.08, 12]} />
           </Part>
-          <Part color="#e8b93a" position={[0, 0.25, 0]} outline={0.7}>
+          <Part color="#e8b93a" position={[0, 0.25, 0]}>
             <cylinderGeometry args={[0.12, 0.05, 0.22, 12]} />
           </Part>
         </group>
       </group>
 
       {/* rug */}
-      <Part color="#2a9d8f" position={[0.4, 0.015, 0.7]} scale={[2.6, 1, 1.75]} outline={false}>
+      <Part color="#2a9d8f" position={[0.4, 0.015, 0.7]} scale={[2.6, 1, 1.75]}>
         <cylinderGeometry args={[1, 1, 0.03, 48]} />
       </Part>
-      <Part color="#ff7849" position={[0.4, 0.02, 0.7]} scale={[2.2, 1, 1.42]} outline={false}>
+      <Part color="#ff7849" position={[0.4, 0.02, 0.7]} scale={[2.2, 1, 1.42]}>
         <cylinderGeometry args={[1, 1, 0.03, 48]} />
       </Part>
-      <Part color="#2a9d8f" position={[0.4, 0.025, 0.7]} scale={[2.05, 1, 1.3]} outline={false}>
+      <Part color="#2a9d8f" position={[0.4, 0.025, 0.7]} scale={[2.05, 1, 1.3]}>
         <cylinderGeometry args={[1, 1, 0.03, 48]} />
       </Part>
 
@@ -384,7 +382,7 @@ function Decor() {
           const a = i * 1.05
           return (
             <group key={i} position={[0, 0.6, 0]} rotation-y={a}>
-              <Part color="#2f6b3c" position={[0.18, 0.45, 0]} rotation-z={-0.35} outline={0.6}>
+              <Part color="#2f6b3c" position={[0.18, 0.45, 0]} rotation-z={-0.35}>
                 <cylinderGeometry args={[0.015, 0.02, 0.9, 5]} />
               </Part>
               <Part
@@ -392,7 +390,6 @@ function Decor() {
                 position={[0.4, 0.95 + (i % 3) * 0.12, 0]}
                 rotation-z={-0.6}
                 scale={[0.36, 0.05, 0.3]}
-                outline={0.8}
               >
                 <sphereGeometry args={[1, 12, 8]} />
               </Part>

@@ -34,7 +34,7 @@ export default function CameraRig() {
   const offset = useRef({ x: 0, y: 0 })
 
   useFrame((_, rawDt) => {
-    const dt = Math.min(rawDt, 0.1)
+    const dt = Math.min(rawDt, 0.25)
     const portrait = size.width / size.height < 0.95
     const rig = portrait ? rigs.mobile : rigs.cam
     const p = view.reduced ? Math.round(view.progress) : view.progress

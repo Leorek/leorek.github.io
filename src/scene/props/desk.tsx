@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Group, Mesh, MeshBasicMaterial, PointLight, type Texture } from 'three'
 import { palette, toggleDayNight } from '../../lib/time-of-day'
 import { view } from '../../lib/view-state'
-import { canvasTexture, FONT_MONO, Glow, Hotspot, INK, Part, rbox } from '../toon'
+import { canvasTexture, FONT_MONO, Glow, Hotspot, INK, Part, rbox } from '../paint'
 
 export const DESK = { x: -1.0, z: -3.15, top: 1.14 }
 
@@ -184,10 +184,10 @@ function Monitor({ x, rot, map }: { x: number; rot: number; map: Texture }) {
       <Glow map={map} position={[0, 0, 0.037]}>
         <planeGeometry args={[1.02, 0.62]} />
       </Glow>
-      <Part color="#2d2a3e" position={[0, -0.47, -0.06]} outline={0.7}>
+      <Part color="#2d2a3e" position={[0, -0.47, -0.06]}>
         <boxGeometry args={[0.09, 0.32, 0.06]} />
       </Part>
-      <Part color="#2d2a3e" position={[0, -0.615, -0.02]} geometry={rbox(0.38, 0.03, 0.24, 0.012)} outline={0.7} />
+      <Part color="#2d2a3e" position={[0, -0.615, -0.02]} geometry={rbox(0.38, 0.03, 0.24, 0.012)} />
     </group>
   )
 }
@@ -208,7 +208,7 @@ function Steam() {
       {[0, 1, 2].map((i) => (
         <mesh key={i} scale={0.04}>
           <sphereGeometry args={[1, 10, 8]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.8} />
+          <meshBasicMaterial color="#f4efe6" transparent opacity={0.45} depthWrite={false} />
         </mesh>
       ))}
     </group>
@@ -229,13 +229,13 @@ function DeskLamp() {
         <Part color="#2d2a3e" position={[0, 0.03, 0]}>
           <cylinderGeometry args={[0.15, 0.17, 0.06, 18]} />
         </Part>
-        <Part color="#ff7849" position={[0, 0.32, 0.08]} rotation-x={0.45} outline={0.8}>
+        <Part color="#ff7849" position={[0, 0.32, 0.08]} rotation-x={0.45}>
           <cylinderGeometry args={[0.025, 0.025, 0.6, 8]} />
         </Part>
-        <Part color="#2d2a3e" position={[0, 0.58, 0.2]} outline={0.8}>
+        <Part color="#2d2a3e" position={[0, 0.58, 0.2]}>
           <sphereGeometry args={[0.045, 10, 8]} />
         </Part>
-        <Part color="#ff7849" position={[0, 0.66, 0.42]} rotation-x={-1.1} outline={0.8}>
+        <Part color="#ff7849" position={[0, 0.66, 0.42]} rotation-x={-1.1}>
           <cylinderGeometry args={[0.025, 0.025, 0.48, 8]} />
         </Part>
         <group position={[0, 0.7, 0.66]} rotation-x={0.5}>
@@ -270,13 +270,13 @@ export default function Desk() {
         <group position={[x, 0, z]}>
           {/* top + frame */}
           <Part color="#b9784f" position={[0, top - 0.04, 0]} geometry={rbox(3.1, 0.08, 1.05, 0.025)} />
-          <Part color="#8a5536" position={[1.45, (top - 0.08) / 2, 0]} outline={0.8}>
+          <Part color="#8a5536" position={[1.45, (top - 0.08) / 2, 0]}>
             <boxGeometry args={[0.08, top - 0.08, 0.9]} />
           </Part>
           {/* drawer unit */}
           <Part color="#c98b5b" position={[-1.15, (top - 0.08) / 2, 0]} geometry={rbox(0.7, top - 0.08, 0.95, 0.02)} />
           {[0.25, 0.55, 0.85].map((y) => (
-            <Part key={y} color="#2d2a3e" position={[-1.15, y, 0.49]} outline={false}>
+            <Part key={y} color="#2d2a3e" position={[-1.15, y, 0.49]}>
               <boxGeometry args={[0.22, 0.04, 0.03]} />
             </Part>
           ))}
@@ -285,10 +285,10 @@ export default function Desk() {
         <Monitor x={-0.42} rot={-0.14} map={schema} />
         {/* keyboard + mouse */}
         <Part color="#3b3550" position={[-1.0, top + 0.025, -2.93]} geometry={rbox(0.95, 0.045, 0.3, 0.015)} />
-        <Part color="#ece6da" position={[-1.0, top + 0.05, -2.93]} outline={false}>
+        <Part color="#ece6da" position={[-1.0, top + 0.05, -2.93]}>
           <boxGeometry args={[0.86, 0.01, 0.22]} />
         </Part>
-        <Part color="#3b3550" position={[-0.3, top + 0.03, -2.92]} scale={[0.07, 0.035, 0.11]} outline={0.7}>
+        <Part color="#3b3550" position={[-0.3, top + 0.03, -2.92]} scale={[0.07, 0.035, 0.11]}>
           <sphereGeometry args={[1, 12, 10]} />
         </Part>
         {/* mug */}
@@ -296,7 +296,7 @@ export default function Desk() {
           <Part color="#ff7849" position={[0, 0.09, 0]}>
             <cylinderGeometry args={[0.075, 0.07, 0.18, 16]} />
           </Part>
-          <Part color="#ff7849" position={[0.085, 0.09, 0]} rotation-y={Math.PI / 2} outline={0.6}>
+          <Part color="#ff7849" position={[0.085, 0.09, 0]} rotation-y={Math.PI / 2}>
             <torusGeometry args={[0.045, 0.014, 8, 16]} />
           </Part>
           <Steam />
