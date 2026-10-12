@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Group, Sprite, SpriteMaterial } from 'three'
 import { view } from '../../lib/view-state'
-import { canvasTexture, FONT_DISPLAY, FONT_MONO, Hotspot, INK, Part, rbox } from '../toon'
+import { canvasTexture, FONT_DISPLAY, FONT_MONO, Hotspot, INK, Part, rbox } from '../paint'
 
 export const TURNTABLE = { x: 2.6, z: -3.38, top: 0.85 }
 export const BPM = 124
@@ -77,17 +77,17 @@ function Speaker({ x, flip = false }: { x: number; flip?: boolean }) {
     <group position={[x, TURNTABLE.top + 0.33, TURNTABLE.z + 0.02]} rotation-y={flip ? -0.12 : 0.12}>
       <Part color="#5a3a2a" geometry={rbox(0.46, 0.66, 0.42, 0.03)} />
       <group ref={cone} position={[0, -0.1, 0.215]}>
-        <Part color={INK} rotation-x={Math.PI / 2} outline={0.6}>
+        <Part color={INK} rotation-x={Math.PI / 2}>
           <cylinderGeometry args={[0.15, 0.15, 0.02, 24]} />
         </Part>
-        <Part color="#4a4560" position={[0, 0, 0.012]} rotation-x={Math.PI / 2} outline={false}>
+        <Part color="#4a4560" position={[0, 0, 0.012]} rotation-x={Math.PI / 2}>
           <cylinderGeometry args={[0.11, 0.11, 0.01, 24]} />
         </Part>
-        <Part color="#ff7849" position={[0, 0, 0.02]} outline={false}>
+        <Part color="#ff7849" position={[0, 0, 0.02]}>
           <sphereGeometry args={[0.04, 12, 8]} />
         </Part>
       </group>
-      <Part color={INK} position={[0, 0.19, 0.215]} rotation-x={Math.PI / 2} outline={0.6}>
+      <Part color={INK} position={[0, 0.19, 0.215]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.05, 0.05, 0.02, 16]} />
       </Part>
     </group>
@@ -97,7 +97,7 @@ function Speaker({ x, flip = false }: { x: number; flip?: boolean }) {
 function Notes() {
   const tex = useNoteTexture()
   const group = useRef<Group>(null!)
-  const mats = useMemo(() => [0, 1, 2, 3].map(() => new SpriteMaterial({ map: tex, transparent: true })), [tex])
+  const mats = useMemo(() => [0, 1, 2, 3].map(() => new SpriteMaterial({ map: tex, transparent: true, depthWrite: false })), [tex])
   useFrame(({ clock }) => {
     if (view.reduced) {
       group.current.visible = false
@@ -144,7 +144,6 @@ function Crate() {
           position={[-0.22 + i * 0.11, 0.38, 0]}
           rotation-z={-0.18 + i * 0.05}
           geometry={rbox(0.03, 0.58, 0.56, 0.01)}
-          outline={0.7}
         />
       ))}
     </group>
@@ -163,10 +162,10 @@ export default function Turntable() {
       {/* sideboard */}
       <group position={[x, 0, z]}>
         <Part color="#b9784f" position={[0, top / 2 + 0.06, 0]} geometry={rbox(2.7, top - 0.12, 0.7, 0.03)} />
-        <Part color="#2a9d8f" position={[-0.66, top / 2 + 0.06, 0.355]} geometry={rbox(1.24, top - 0.24, 0.02, 0.01)} outline={0.6} />
-        <Part color="#ffd166" position={[0.66, top / 2 + 0.06, 0.355]} geometry={rbox(1.24, top - 0.24, 0.02, 0.01)} outline={0.6} />
+        <Part color="#2a9d8f" position={[-0.66, top / 2 + 0.06, 0.355]} geometry={rbox(1.24, top - 0.24, 0.02, 0.01)} />
+        <Part color="#ffd166" position={[0.66, top / 2 + 0.06, 0.355]} geometry={rbox(1.24, top - 0.24, 0.02, 0.01)} />
         {[-1.2, 1.2].map((lx) => (
-          <Part key={lx} color="#2d2640" position={[lx, 0.06, 0]} outline={0.6}>
+          <Part key={lx} color="#2d2640" position={[lx, 0.06, 0]}>
             <cylinderGeometry args={[0.04, 0.03, 0.12, 8]} />
           </Part>
         ))}
@@ -175,27 +174,27 @@ export default function Turntable() {
       {/* turntable */}
       <group position={[x, top, z]}>
         <Part color="#e9e2d0" position={[0, 0.06, 0]} geometry={rbox(0.84, 0.12, 0.64, 0.03)} />
-        <Part color="#8d99ae" position={[-0.08, 0.135, 0]} outline={0.7}>
+        <Part color="#8d99ae" position={[-0.08, 0.135, 0]}>
           <cylinderGeometry args={[0.28, 0.28, 0.03, 32]} />
         </Part>
         <group ref={vinyl} position={[-0.08, 0.155, 0]}>
           <mesh>
             <cylinderGeometry args={[0.265, 0.265, 0.012, 32]} />
-            <meshToonMaterial color="#161321" />
+            <meshStandardMaterial roughness={0.9} color="#161321" />
           </mesh>
           <mesh position={[0, 0.007, 0]} rotation-x={-Math.PI / 2}>
             <circleGeometry args={[0.264, 32]} />
-            <meshToonMaterial map={label} />
+            <meshStandardMaterial roughness={0.9} map={label} />
           </mesh>
         </group>
         {/* tonearm */}
-        <Part color="#8d99ae" position={[0.3, 0.16, -0.2]} outline={0.6}>
+        <Part color="#8d99ae" position={[0.3, 0.16, -0.2]}>
           <cylinderGeometry args={[0.04, 0.04, 0.08, 12]} />
         </Part>
-        <Part color="#d0d4dc" position={[0.2, 0.2, 0.0]} rotation-x={Math.PI / 2} rotation-z={0.5} outline={0.6}>
+        <Part color="#d0d4dc" position={[0.2, 0.2, 0.0]} rotation-x={Math.PI / 2} rotation-z={0.5}>
           <cylinderGeometry args={[0.012, 0.012, 0.44, 6]} />
         </Part>
-        <Part color={INK} position={[0.1, 0.19, 0.18]} outline={0.6}>
+        <Part color={INK} position={[0.1, 0.19, 0.18]}>
           <boxGeometry args={[0.05, 0.03, 0.07]} />
         </Part>
       </group>

@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { PointLight } from 'three'
 import { palette } from '../../lib/time-of-day'
 import { view } from '../../lib/view-state'
-import { canvasTexture, FONT_DISPLAY, FONT_MONO, Glow, Hotspot, Part, rbox } from '../toon'
+import { canvasTexture, FONT_MONO, FONT_SANS, Glow, Hotspot, Part, rbox } from '../paint'
 
 export const ARCADE = { x: -3.95, z: -2.95, rot: Math.PI / 4 }
 
@@ -45,7 +45,7 @@ function useAttractScreen() {
       ctx.textBaseline = 'alphabetic'
       if (phase < 4.5) {
         // title card
-        ctx.font = `800 40px ${FONT_DISPLAY}`
+        ctx.font = `700 40px ${FONT_SANS}`
         ctx.fillStyle = '#ff7849'
         ctx.fillText('LEO', W / 2 + 3, 72)
         ctx.fillStyle = '#ffd166'
@@ -107,7 +107,7 @@ function useMarquee() {
         g.addColorStop(1, '#7b5cff')
         ctx.fillStyle = g
         ctx.fillRect(0, 0, w, h)
-        ctx.font = `800 38px ${FONT_DISPLAY}`
+        ctx.font = `700 36px ${FONT_SANS}`
         ctx.textAlign = 'center'
         ctx.fillStyle = '#1d1a2b'
         ctx.fillText('LEO·CADE', w / 2 + 2, 46)
@@ -136,20 +136,20 @@ export default function Arcade() {
         <Part color={BODY} position={[0, 0.55, 0]} geometry={rbox(1.0, 1.1, 0.86, 0.04)} />
         {/* control panel */}
         <Part color="#2d2640" position={[0, 1.17, 0.3]} rotation-x={-0.28} geometry={rbox(1.06, 0.12, 0.46, 0.03)} />
-        <Part color="#2d2640" position={[-0.22, 1.27, 0.36]} outline={0.6}>
+        <Part color="#2d2640" position={[-0.22, 1.27, 0.36]}>
           <cylinderGeometry args={[0.018, 0.018, 0.16, 8]} />
         </Part>
-        <Part color="#ff4f5e" position={[-0.22, 1.36, 0.36]} outline={0.7}>
+        <Part color="#ff4f5e" position={[-0.22, 1.36, 0.36]}>
           <sphereGeometry args={[0.055, 14, 10]} />
         </Part>
         {['#3ad0b5', '#ffd166', '#ff4f8b'].map((c, i) => (
-          <Part key={c} color={c} position={[0.05 + i * 0.13, 1.24 + i * 0.008, 0.33 - i * 0.03]} rotation-x={-0.28} outline={0.6}>
+          <Part key={c} color={c} position={[0.05 + i * 0.13, 1.24 + i * 0.008, 0.33 - i * 0.03]} rotation-x={-0.28}>
             <cylinderGeometry args={[0.045, 0.045, 0.04, 14]} />
           </Part>
         ))}
         {/* upper cabinet + screen */}
         <Part color={BODY} position={[0, 1.83, -0.08]} geometry={rbox(1.0, 1.25, 0.7, 0.04)} />
-        <Part color="#151226" position={[0, 1.83, 0.27]} rotation-x={-0.1} geometry={rbox(0.86, 0.74, 0.03, 0.02)} outline={0.6} />
+        <Part color="#151226" position={[0, 1.83, 0.27]} rotation-x={-0.1} geometry={rbox(0.86, 0.74, 0.03, 0.02)} />
         <Glow map={screen.tex} position={[0, 1.83, 0.29]} rotation-x={-0.1}>
           <planeGeometry args={[0.78, 0.64]} />
         </Glow>
@@ -159,7 +159,7 @@ export default function Arcade() {
           <planeGeometry args={[0.96, 0.27]} />
         </Glow>
         {/* coin door */}
-        <Part color="#2d2640" position={[0, 0.55, 0.435]} geometry={rbox(0.36, 0.42, 0.03, 0.015)} outline={0.6} />
+        <Part color="#2d2640" position={[0, 0.55, 0.435]} geometry={rbox(0.36, 0.42, 0.03, 0.015)} />
         {[-0.08, 0.08].map((x) => (
           <Glow key={x} color="#ff4f5e" position={[x, 0.62, 0.452]}>
             <planeGeometry args={[0.05, 0.09]} />

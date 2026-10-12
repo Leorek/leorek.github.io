@@ -1,6 +1,6 @@
 # El estudio de Leo — documento de diseño
 
-> Rediseño de leorek.github.io. Versión 0.1 (prototipo), octubre 2026.
+> Rediseño de leorek.github.io. Versión 0.2, octubre 2026 (v0.1 era toon; v0.2 pasa a estilo pictórico tipo RiME).
 > Rama: `claude/personal-web-3d-design-5sbm21`.
 
 ---
@@ -11,10 +11,10 @@
 |---|---|
 | Concepto | **El estudio de Leo**: una habitación 3D donde cada objeto es una faceta tuya |
 | Objetivo | Mezcla equilibrada: que impresione a la comunidad creativa y que un recruiter entienda en 10 s quién eres |
-| Estilo | **Toon / cel-shaded** (contornos de tinta y sombreado por bandas, como tu avatar) |
+| Estilo | **Pictórico tipo RiME**: luz mediterránea cálida, sombras lavanda, formas suaves, bruma y brillos (la v0.1 era toon) |
 | Hora | **Ciclo real de Málaga** (mañana, día, atardecer, noche) + interruptor de lámpara |
 | Objetos | Escritorio, ventana al mar, recreativa arcade, tocadiscos con altavoces, maqueta de montaña rusa y mapa de corcho |
-| Personaje | **Mini-Leo toon** que reacciona a lo que miras |
+| Personaje | **Mini-Leo** basado en tu foto, que reacciona a lo que miras |
 | Navegación | **Híbrida**: el scroll hace un recorrido guiado, un click en un objeto salta a él, y hay menú HTML siempre visible |
 | Idiomas | Bilingüe: inglés por defecto y español (se detecta el idioma del navegador y se puede cambiar) |
 | Modelos | Primero primitivas en código y assets CC0; después tú puedes sustituir las piezas clave |
@@ -25,7 +25,7 @@
 ## 2. Diagnóstico de la web actual
 
 **Lo que funciona**
-- El shader de océano demuestra nivel técnico (olas de Gerstner, refracción, caústicas y absorción), pero su estética no encaja con el nuevo concepto: se sustituye por un mar toon nuevo (§6).
+- El shader de océano demuestra nivel técnico (olas de Gerstner, refracción, caústicas y absorción), pero su estética no encaja con el nuevo concepto: se sustituye por un mar pictórico nuevo (§6).
 - El contenido está centralizado en `src/data/site.ts`, se respeta `prefers-reduced-motion` y hay un fallback si WebGL falla.
 
 **Lo que frena**
@@ -100,7 +100,7 @@ D │                                             └───────┘ �
                  📷 cámara: vista 3/4 desde delante-derecha
 ```
 
-Es una **habitación seccionada tipo diorama**, con dos paredes y suelo, el formato más reconocible y legible en toon. Por encima de la pared del fondo se ven el mar y el horizonte, así que el estudio parece asomado a la costa.
+Es una **habitación seccionada tipo diorama**, con dos paredes y suelo, el formato más reconocible y legible. Por encima de la pared del fondo se ven el mar y el horizonte, así que el estudio parece asomado a la costa.
 
 ---
 
@@ -129,24 +129,38 @@ Cada estación es una sección HTML con un panel de texto y una posición de cá
 
 ## 6. Dirección de arte
 
-### Toon
-- **Sombreado**: `MeshToonMaterial` con un *gradient map* de 3 bandas y filtrado *nearest*, para que los saltos de luz sean duros.
-- **Mar**: shader toon propio, casi plano:
-  - degradado de turquesa en la orilla a azul profundo, con un "escalón" donde cae la plataforma;
-  - trazos de espuma sueltos que serpentean;
-  - espuma lamiendo la arena y una ola que entra cada pocos segundos;
-  - el reflejo del sol o la luna como una columna de destellos horizontales, intensa al atardecer y con luna;
-  - línea de horizonte nítida.
-- **Contornos**: técnica de *inverted hull* (`<Outlines>` de drei) en color tinta `#1d1a2b`. Al pasar el ratón por encima, el contorno pasa a ember.
-- **Sombras**: un mapa de sombras para la luz que entra por la ventana, que dibuja el marco en el suelo. Sin sombras en calidad baja.
-- **Formas**: redondeadas, gruesas y con proporciones "chibi". Pocas piezas, bien legibles.
-- **Coherencia**: tu avatar actual ya es un retrato cel-shaded con fondo rojo y logos de Godot y Unreal, así que el estilo continúa tu identidad.
+### Pictórico, tipo RiME
+RiME (Tequila Works, Madrid) bebe de Sorolla y de la luz del Mediterráneo, así que encaja de forma natural con un estudio en Málaga.
+
+- **Luz que pinta**:
+  - el sol (o la luna) entra cálido por la ventana con sombras suaves (PCF con radio);
+  - el cielo rellena con un tono **lavanda/pervinca**, así que lo que queda en sombra se ve de color, nunca gris;
+  - un rebote cálido desde delante mantiene legibles las caras.
+- **Materiales**:
+  - superficies mate (`MeshStandardMaterial`, rugosidad 0,9) y formas redondeadas;
+  - sin contornos ni texturas realistas: el volumen lo dan la luz y la oclusión.
+- **Postprocesado** (con calidad adaptativa):
+  - oclusión ambiental N8AO teñida de violeta;
+  - *bloom* suave, que hace brillar sol, faro, pantallas y destellos del mar;
+  - tonemapping *Neutral* con un punto más de saturación;
+  - viñeta ligera.
+  - En móvil: sin AO y con el bloom a media resolución.
+- **Atmósfera**:
+  - niebla de distancia del color del horizonte;
+  - **haces de luz** que entran por la ventana siguiendo la dirección real del sol.
+- **Cielo**: degradado suave, nubes grandes iluminadas por el lado del sol y con la panza lavanda, y sol o luna con halo en HDR para el bloom.
+- **Mar**: shader propio, casi plano:
+  - degradado de turquesa en la orilla a azul profundo, con manchas suaves de color;
+  - reflejo del cielo según el ángulo de visión;
+  - camino de luz bajo el sol o la luna con destellos que titilan;
+  - espuma suave en la orilla y bruma hacia el horizonte.
+- **Hover**: el objeto se tiñe de una luz cálida que el bloom suaviza.
 
 ### Paleta base (objetos)
 | Rol | Color |
 |---|---|
-| Tinta (contornos y texto) | `#1d1a2b` |
-| Ember (acento de marca) | `#ff7849` |
+| Tinta (texto y detalles) | `#2a2440` |
+| Terracota (acento de marca) | `#f2704f` |
 | Madera | `#b9784f` / `#8a5536` |
 | Pared | `#efe2cc` |
 | Mar / alfombra | `#2a9d8f` |
@@ -157,27 +171,37 @@ Cada estación es una sección HTML con un panel de texto y una posición de cá
 | Momento | Cielo (cénit → horizonte) | Luz principal | Lámpara |
 |---|---|---|---|
 | Amanecer (7 h) | lila → melocotón | sol bajo, rosado | apagada |
-| Día (9–17 h) | azul → celeste | sol blanco cálido | apagada |
-| Atardecer (19:30 h) | violeta → naranja | sol naranja rasante | encendiéndose |
+| Día (9–17 h) | azul → celeste claro | sol blanco cálido, sombras pervinca | apagada |
+| Atardecer (19:30 h) | violeta → naranja | sol naranja rasante, sombras lilas | encendiéndose |
 | Noche (22–5 h) | azul tinta → azul noche | luna fría y tenue | encendida, ámbar |
 
 El tiempo se interpola de forma continua: el estado del mundo es una "hora" con decimales y todo deriva de ella.
 
 ### Interfaz (HTML)
-- **Paneles tipo viñeta de cómic**: fondo papel `#fff6e9`, borde de 2 px en tinta y sombra dura desplazada (`6px 6px 0`). De noche pasan a azul tinta con texto crema y sombra ember.
+- **Paneles de cristal esmerilado** que flotan sobre la escena:
+  - de día, papel cálido translúcido (`rgb(255 250 242 / 0.8)` con `backdrop-filter: blur`);
+  - de noche, cristal azul crepúsculo;
+  - bordes finos y sombras amplias y suaves, sin trazos duros.
 - **Tipografía**:
-  - display: **Bricolage Grotesque** (con carácter, encaja con el toon sin ser infantil);
-  - etiquetas: **JetBrains Mono**.
-- **Pegatinas** en mono mayúsculas para las etiquetas (`BY DAY`, `BY NIGHT`, `128 BPM`).
+  - títulos y entradilla: **Fraunces** (serif "suave", eje SOFT al máximo), con un tono de libro ilustrado;
+  - texto e interfaz: **Inter**;
+  - **JetBrains Mono** solo dentro de la escena (el código del monitor).
+- **Etiquetas** en versalitas espaciadas sobre fondo terracota tenue (`BY DAY`, `BY NIGHT`, `128 BPM`).
+- **Botón principal** con degradado terracota → coral; los secundarios, translúcidos.
 - Botón de cambio de idioma `EN / ES` e interruptor de sol y luna en la barra superior.
 
 ---
 
 ## 7. Mini-Leo
 
-Basado en tu avatar: pelo corto oscuro con *undercut*, barba completa y henley beige claro.
+Basado en tu foto:
+- cara ancha y redonda, con mejillas llenas;
+- pelo corto con degradado en los lados y volumen arriba, peinado hacia un lado;
+- barba corta y perfilada con bigote y perilla;
+- cejas gruesas y rectas, ojos marrón oscuro y nariz ancha;
+- camiseta verde lima pálido de manga corta, con el osito dormido sobre una radio;
+- complexión ancha y tu mochila negra colgada del respaldo de la silla.
 
-- **Proporciones chibi**: la cabeza mide alrededor de un tercio de la altura y los ojos son óvalos negros con brillo.
 - **Estados**:
   - *idle*: respira, parpadea y la silla gira un poco;
   - *typing*: brazos sobre el teclado (estación `work`);
@@ -231,9 +255,10 @@ src/
   scene/
     scene.tsx             <Canvas>, luces, calidad adaptativa
     camera-rig.tsx        cámara por scroll entre estaciones
-    toon.ts               gradient map, materiales y contornos
+    paint.tsx             materiales mate, hover cálido, hotspots, texturas canvas
     outside.tsx           cielo por hora, paseo marítimo, La Farola, noria
-    sea.tsx               mar toon (espuma, orilla, reflejo del sol/luna)
+    sea.tsx               mar pictórico (reflejo del cielo, destellos, espuma)
+    scene.tsx             luces, niebla, haces de luz, postprocesado por calidad
     room.tsx              suelo, paredes con hueco de ventana, muebles
     props/                desk · arcade · turntable · coaster · cork-map · lamp
     avatar.tsx            mini-Leo
@@ -246,11 +271,11 @@ src/
 ## 11. Hoja de ruta
 
 **Prototipo (esta rama)**
-- Toda la habitación en blockout toon con primitivas.
+- Toda la habitación con primitivas.
 - Las 7 estaciones navegables.
 - Ciclo día/noche real con interruptor.
 - Mini-Leo con estados básicos.
-- Mar toon.
+- Mar y cielo pictóricos.
 - Textos bilingües con el contenido actual.
 
 **v1 (con tu contenido)**
@@ -275,9 +300,9 @@ src/
 Implementado en esta rama y probado con capturas automáticas (escritorio 1440×900 y móvil 390×844, a mediodía, atardecer y noche):
 
 **Escena**
-- La habitación toon completa: escritorio, recreativa, tocadiscos, maqueta de coaster y mapa de corcho.
-- El exterior: mar toon nuevo, palmeras, La Farola y la noria.
-- Mini-Leo con sus estados.
+- La habitación completa en estilo pictórico: escritorio, recreativa, tocadiscos, maqueta de coaster y mapa de corcho.
+- El exterior: mar y cielo pictóricos, palmeras, La Farola y la noria.
+- Mini-Leo basado en tu foto, con sus estados.
 
 **Recorrido e interacción**
 - Recorrido de 7 estaciones con cámara por scroll.

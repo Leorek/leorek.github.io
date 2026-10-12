@@ -13,7 +13,7 @@ import {
   Vector3,
 } from 'three'
 import { goto, launchCoaster, view } from '../../lib/view-state'
-import { canvasTexture, FONT_DISPLAY, GRADIENT, Hotspot, INK, Part, rbox } from '../toon'
+import { canvasTexture, FONT_DISPLAY, Hotspot, INK, Part, rbox } from '../paint'
 
 // A tabletop coaster model. The train runs on a simple energy model: chain
 // lift at constant speed, then speed = f(height below the crest), brakes in
@@ -117,7 +117,7 @@ function Ties({ track }: { track: Track }) {
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, count]} castShadow>
       <boxGeometry args={[GAUGE + 0.04, 0.014, 0.022]} />
-      <meshToonMaterial color="#3b3550" gradientMap={GRADIENT} />
+      <meshStandardMaterial color="#3b3550" roughness={0.9} />
     </instancedMesh>
   )
 }
@@ -142,7 +142,7 @@ function Supports({ track }: { track: Track }) {
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, picks.length]} castShadow>
       <cylinderGeometry args={[0.014, 0.018, 1, 6]} />
-      <meshToonMaterial color="#f4efe6" gradientMap={GRADIENT} />
+      <meshStandardMaterial color="#f4efe6" roughness={0.9} />
     </instancedMesh>
   )
 }
@@ -150,13 +150,13 @@ function Supports({ track }: { track: Track }) {
 function Car({ color, rider }: { color: string; rider: string }) {
   return (
     <group>
-      <Part color={color} position={[0, 0.035, 0]} geometry={rbox(0.11, 0.06, 0.14, 0.02)} outline={0.7} />
-      <Part color={rider} position={[0, 0.1, -0.01]} outline={0.6}>
+      <Part color={color} position={[0, 0.035, 0]} geometry={rbox(0.11, 0.06, 0.14, 0.02)} />
+      <Part color={rider} position={[0, 0.1, -0.01]}>
         <sphereGeometry args={[0.03, 10, 8]} />
       </Part>
       <group name="arms" position={[0, 0.07, -0.01]}>
         {[-1, 1].map((s) => (
-          <Part key={s} color={rider} position={[s * 0.035, 0.03, 0]} rotation-z={s * 0.3} outline={false}>
+          <Part key={s} color={rider} position={[s * 0.035, 0.03, 0]} rotation-z={s * 0.3}>
             <capsuleGeometry args={[0.008, 0.05, 2, 6]} />
           </Part>
         ))}
@@ -229,22 +229,22 @@ export default function Coaster() {
       <group position={[COASTER.x, 0, COASTER.z]}>
         {/* table */}
         <Part color="#8a5536" position={[0, COASTER.top - 0.04, 0]} geometry={rbox(2.7, 0.08, 2.1, 0.03)} />
-        <Part color="#6cc070" position={[0, COASTER.top + 0.005, 0]} geometry={rbox(2.56, 0.02, 1.96, 0.01)} outline={false} />
+        <Part color="#6cc070" position={[0, COASTER.top + 0.005, 0]} geometry={rbox(2.56, 0.02, 1.96, 0.01)} />
         {[
           [-1.25, -0.95],
           [1.25, -0.95],
           [-1.25, 0.95],
           [1.25, 0.95],
         ].map(([x, z]) => (
-          <Part key={`${x}${z}`} color="#6b4228" position={[x, (COASTER.top - 0.08) / 2, z]} outline={0.8}>
+          <Part key={`${x}${z}`} color="#6b4228" position={[x, (COASTER.top - 0.08) / 2, z]}>
             <cylinderGeometry args={[0.045, 0.035, COASTER.top - 0.08, 8]} />
           </Part>
         ))}
 
         <group position={[0, COASTER.top + 0.015, 0]}>
-          <Part color="#ff7849" geometry={rails.left} outline={false} />
-          <Part color="#ff7849" geometry={rails.right} outline={false} />
-          <Part color="#e2603f" geometry={rails.spine} outline={0.6} />
+          <Part color="#ff7849" geometry={rails.left} />
+          <Part color="#ff7849" geometry={rails.right} />
+          <Part color="#e2603f" geometry={rails.spine} />
           <Ties track={track} />
           <Supports track={track} />
 
@@ -258,28 +258,28 @@ export default function Coaster() {
 
           {/* station + entrance sign */}
           <group position={[-0.3, 0, 0.84]}>
-            <Part color="#e9e2d0" position={[0, 0.09, 0]} geometry={rbox(0.95, 0.18, 0.2, 0.02)} outline={0.7} />
+            <Part color="#e9e2d0" position={[0, 0.09, 0]} geometry={rbox(0.95, 0.18, 0.2, 0.02)} />
             {[-0.42, 0.42].map((x) => (
-              <Part key={x} color="#3b3550" position={[x, 0.32, 0.05]} outline={0.6}>
+              <Part key={x} color="#3b3550" position={[x, 0.32, 0.05]}>
                 <cylinderGeometry args={[0.012, 0.012, 0.32, 6]} />
               </Part>
             ))}
-            <Part color="#ff7849" position={[0, 0.5, -0.02]} geometry={rbox(1.0, 0.04, 0.42, 0.015)} outline={0.7} />
+            <Part color="#ff7849" position={[0, 0.5, -0.02]} geometry={rbox(1.0, 0.04, 0.42, 0.015)} />
           </group>
           <group position={[-1.05, 0, 0.9]} rotation-y={0.6}>
             {[-0.2, 0.2].map((x) => (
-              <Part key={x} color="#3b3550" position={[x, 0.2, 0]} outline={0.6}>
+              <Part key={x} color="#3b3550" position={[x, 0.2, 0]}>
                 <cylinderGeometry args={[0.014, 0.014, 0.4, 6]} />
               </Part>
             ))}
             <mesh position={[0, 0.42, 0]}>
               <planeGeometry args={[0.5, 0.125]} />
-              <meshToonMaterial map={sign} gradientMap={GRADIENT} side={DoubleSide} />
+              <meshStandardMaterial map={sign} roughness={0.9} side={DoubleSide} />
             </mesh>
           </group>
 
           {/* scenery inside the loop */}
-          <Part color="#5ab0e6" position={[0.05, 0.005, 0.05]} scale={[0.38, 1, 0.24]} outline={0.6}>
+          <Part color="#5ab0e6" position={[0.05, 0.005, 0.05]} scale={[0.38, 1, 0.24]}>
             <cylinderGeometry args={[1, 1, 0.012, 24]} />
           </Part>
           {[
@@ -289,10 +289,10 @@ export default function Coaster() {
             [-0.3, -0.3, 0.25],
           ].map(([x, z, h]) => (
             <group key={`${x}${z}`} position={[x, 0, z]}>
-              <Part color="#6b4228" position={[0, 0.04, 0]} outline={0.5}>
+              <Part color="#6b4228" position={[0, 0.04, 0]}>
                 <cylinderGeometry args={[0.015, 0.015, 0.08, 6]} />
               </Part>
-              <Part color="#3f9b52" position={[0, 0.08 + h / 2, 0]} outline={0.6}>
+              <Part color="#3f9b52" position={[0, 0.08 + h / 2, 0]}>
                 <coneGeometry args={[h * 0.42, h, 8]} />
               </Part>
             </group>

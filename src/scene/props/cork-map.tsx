@@ -3,7 +3,7 @@ import { QuadraticBezierLine } from '@react-three/drei'
 import { Vector3 } from 'three'
 import { places } from '../../data/site'
 import { isLand, WORLD } from '../../data/world-dots'
-import { canvasTexture, FONT_DISPLAY, Hotspot, INK, Part, rbox } from '../toon'
+import { canvasTexture, FONT_DISPLAY, Hotspot, INK, Part, rbox } from '../paint'
 
 // Travel board on the left wall: a dotted world map on paper, pinned to cork,
 // with red yarn running from Málaga to every other pin.
@@ -55,10 +55,10 @@ function usePaper() {
 function Pin({ at, color }: { at: [number, number]; color: string }) {
   return (
     <group position={[0.02, at[1], at[0]]}>
-      <Part color="#c9ccd6" position={[0.03, 0, 0]} rotation-z={Math.PI / 2} outline={false}>
+      <Part color="#c9ccd6" position={[0.03, 0, 0]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.006, 0.006, 0.06, 6]} />
       </Part>
-      <Part color={color} position={[0.075, 0, 0]} outline={0.7}>
+      <Part color={color} position={[0.075, 0, 0]}>
         <sphereGeometry args={[0.035, 12, 10]} />
       </Part>
     </group>
@@ -74,12 +74,12 @@ export default function CorkMap() {
       {/* board faces +x (into the room) */}
       <group position={[BOARD.x, BOARD.y, BOARD.z]}>
         <Part color="#8a5536" geometry={rbox(0.08, BOARD.h + 0.1, BOARD.w + 0.1, 0.02)} />
-        <Part color="#c8955a" position={[0.03, 0, 0]} outline={false}>
+        <Part color="#c8955a" position={[0.03, 0, 0]}>
           <boxGeometry args={[0.04, BOARD.h - 0.04, BOARD.w - 0.04]} />
         </Part>
         <mesh position={[0.052, 0, 0]} rotation-y={Math.PI / 2} rotation-z={0.006}>
           <planeGeometry args={[PAPER.w, PAPER.h]} />
-          <meshToonMaterial map={paper} />
+          <meshStandardMaterial roughness={0.9} map={paper} />
         </mesh>
         {/* yarn from home to every pin */}
         {pins
@@ -99,13 +99,13 @@ export default function CorkMap() {
         ))}
         {/* polaroids + sticky notes */}
         <group position={[0.06, -0.45, 1.02]} rotation-x={0.12}>
-          <Part color="#ffffff" geometry={rbox(0.01, 0.3, 0.26, 0.005)} outline={0.6} />
-          <Part color="#5ab0e6" position={[0.007, 0.03, 0]} outline={false}>
+          <Part color="#ffffff" geometry={rbox(0.01, 0.3, 0.26, 0.005)} />
+          <Part color="#5ab0e6" position={[0.007, 0.03, 0]}>
             <boxGeometry args={[0.005, 0.2, 0.21]} />
           </Part>
         </group>
         <group position={[0.06, 0.5, -1.08]} rotation-x={-0.1}>
-          <Part color="#ffd166" geometry={rbox(0.01, 0.22, 0.22, 0.005)} outline={0.6} />
+          <Part color="#ffd166" geometry={rbox(0.01, 0.22, 0.22, 0.005)} />
         </group>
       </group>
     </Hotspot>
